@@ -12,6 +12,7 @@ type IParser<'t> =
     abstract parse : string -> ParseResult<'t>
     abstract times : int -> IParser<'t []>
     abstract many : unit -> IParser<'t []>
+    abstract sepBy : IParser<'u> -> IParser<'t []>
 
 module Parsimmon = 
     let parse<'t> (input: string) (parser: IParser<'t>) = 
@@ -39,6 +40,9 @@ module Parsimmon =
     let digits : IParser<string[]> = 
         import "digits" "./Parsimmon.js"
 
+    let seperateBy (content: IParser<'u>) (others: IParser<'t>) : IParser<'t[]> =
+        others.sepBy(content)
+
     let map (f: 't -> 'u) (parser: IParser<'t>) = parser.map f
 
     let ofString (input: string) : IParser<string> = 
@@ -46,6 +50,12 @@ module Parsimmon =
 
     let oneOf (input: string) : IParser<string> = 
         import "oneOf" "./Parsimmon"
+
+    let whitespace : IParser<string> = 
+        import "whitespace" "./Parsimmon"
+
+    let optionalWhitespace : IParser<string> = 
+        import "optWhitespace" "./Parsimmon"
 
     let noneOf (input: string) : IParser<string> = 
         import "noneOf" "./Parsimmon"

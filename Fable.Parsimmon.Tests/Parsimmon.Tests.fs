@@ -2,6 +2,7 @@ module Fable.Parsimmon.Tests
 
 open FSharp.Core
 open Fable.Parsimmon
+open Fable.Import
 
 QUnit.registerModule "Parsimmon Tests"
 
@@ -99,4 +100,13 @@ QUnit.test "Parsimmon.letter works" <| fun test ->
     |> Parsimmon.parse "abc"
     |> function
         | Some [| "A"; "B"; "C" |] -> test.pass()
+        | otherwise -> test.fail()
+
+QUnit.test "Parsimmon.seperateBy works" <| fun test ->
+    Parsimmon.digit
+    |> Parsimmon.map int
+    |> Parsimmon.seperateBy (Parsimmon.ofString ",")
+    |> Parsimmon.parse "1,2,3,4,5"
+    |> function
+        | Some xs -> Array.sum xs |> test.equal 15
         | otherwise -> test.fail()
