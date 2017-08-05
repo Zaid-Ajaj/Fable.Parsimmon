@@ -25,12 +25,12 @@ QUnit.test "Parsimmon.oneOf works" <| fun test ->
     ["a"; "b"; "c"]
     |> List.choose (fun token -> Parsimmon.parse token parser)
     |> List.length
-    |> fun length -> test.equal 3 length
+    |> test.equal 3 
 
     ["e"; "f"; "g"]
     |> List.choose (fun token -> Parsimmon.parse token parser)
     |> List.length 
-    |> fun length -> test.equal 0 length
+    |> test.equal 0
 
 QUnit.test "Parsimmon.times works" <| fun test -> 
     Parsimmon.ofString "hello"
@@ -62,11 +62,9 @@ QUnit.test "Parsimmon.noneOf works" <| fun test ->
     ["a"; "b"; "c"]
     |> List.choose (fun token -> Parsimmon.parse token parser)
     |> List.length
-    |> fun length -> test.equal 0 length
+    |> test.equal 0
 
     ["e"; "f"; "g"]
     |> List.choose (fun token -> Parsimmon.parse token parser)
     |> List.length 
-    |> fun length -> test.equal 3 length
-
-
+    |> test.equal 3
