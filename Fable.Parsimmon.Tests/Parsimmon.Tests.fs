@@ -2,7 +2,6 @@ module Fable.Parsimmon.Tests
 
 open FSharp.Core
 open Fable.Parsimmon
-open Fable.Import.Browser
 
 QUnit.registerModule "Parsimmon Tests"
 
@@ -47,7 +46,7 @@ QUnit.test "Parsimmon.map works" <| fun test ->
     |> Parsimmon.parse "hello"
     |> function 
         | Some 5 -> test.pass()
-        | _ -> test.fail()
+        | otherwise -> test.fail()
 
 QUnit.test "Parsimmon.many works" <| fun test ->
     Parsimmon.oneOf "abc"
@@ -55,7 +54,7 @@ QUnit.test "Parsimmon.many works" <| fun test ->
     |> Parsimmon.parse "abc"
     |> function 
         | Some [| "a"; "b"; "c" |] -> test.pass()
-        | _ -> test.fail()
+        | otherwise -> test.fail()
 
 QUnit.test "Parsimmon.noneOf works" <| fun test ->
     let parser = Parsimmon.noneOf "abc"
@@ -68,3 +67,36 @@ QUnit.test "Parsimmon.noneOf works" <| fun test ->
     |> List.choose (fun token -> Parsimmon.parse token parser)
     |> List.length 
     |> test.equal 3
+
+
+QUnit.test "Parsimmon.digit works" <| fun test ->
+    Parsimmon.digit
+    |> Parsimmon.map int
+    |> Parsimmon.many
+    |> Parsimmon.parse "123"
+    |> function
+        | Some [| 1; 2; 3 |] -> test.pass()
+        | otherwise -> test.fail()
+
+QUnit.test "Parsimmon.digit should not consume multiple digits" <| fun test ->
+    Parsimmon.digit
+    |> Parsimmon.parse "12"
+    |> Option.isNone
+    |> test.equal true
+
+QUnit.test "Parsimmon.digits works" <| fun test ->
+    Parsimmon.digits
+    |> Parsimmon.map (Array.map int)
+    |> Parsimmon.parse "123"
+    |> function 
+        | Some xs -> Array.sum xs |> test.equal 6
+        | otherwise -> test.fail()
+
+QUnit.test "Parsimmon.letter works" <| fun test ->
+    Parsimmon.letter
+    |> Parsimmon.many
+    |> Parsimmon.map (Array.map  (fun token -> token.ToUpper()))
+    |> Parsimmon.parse "abc"
+    |> function
+        | Some [| "A"; "B"; "C" |] -> test.pass()
+        | otherwise -> test.fail()
