@@ -110,3 +110,11 @@ QUnit.test "Parsimmon.seperateBy works" <| fun test ->
     |> function
         | Some xs -> Array.sum xs |> test.equal 15
         | otherwise -> test.fail()
+
+QUnit.test "Parsimmon.whitespace works" <| fun test -> 
+    Parsimmon.letter
+    |> Parsimmon.seperateBy Parsimmon.whitespace
+    |> Parsimmon.parse "a b c"
+    |> function
+        | Some [| "a"; "b"; "c" |] -> test.pass()
+        | otherwise -> test.fail()
