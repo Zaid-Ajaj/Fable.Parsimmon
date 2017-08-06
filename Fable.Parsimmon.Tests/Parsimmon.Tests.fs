@@ -256,7 +256,7 @@ QUnit.test "Parsimmon.orTry works" <| fun test ->
     |> function
         | None -> test.pass()
         | otherwise -> test.fail()
-        
+
 QUnit.test "Parsimmon.choose works" <| fun test -> 
     [ Parsimmon.str "a"
       Parsimmon.str "ab" ] 
@@ -272,4 +272,19 @@ QUnit.test "Parsimmon.choose works" <| fun test ->
     |> Parsimmon.parse "ab"
     |> function
         | Some "ab" -> test.pass()
+        | otherwise -> test.fail()
+
+QUnit.test "Parsimmon.ofLazy works" <| fun test -> 
+    let rec lazyValue = Parsimmon.ofLazy (fun () -> 
+        [ Parsimmon.str "X" 
+          Parsimmon.str "("
+            |> Parsimmon.chain lazyValue
+            |> Parsimmon.skip (Parsimmon.str ")") ]
+        |> Parsimmon.choose
+    )
+
+    ["X"; "(X)"; "((X))"] 
+    |> List.map (fun token -> Parsimmon.parse token lazyValue)
+    |> function 
+        | [ Some "X"; Some "X"; Some "X" ] -> test.pass()
         | otherwise -> test.fail()
