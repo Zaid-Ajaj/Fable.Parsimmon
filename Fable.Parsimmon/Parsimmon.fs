@@ -14,6 +14,8 @@ type IParser<'t> =
     abstract many : unit -> IParser<'t []>
     [<Emit("$0.then($1)")>]
     abstract chain : IParser<'u> -> IParser<'u>
+    [<Emit("$0.chain($1)")>]
+    abstract bind : ('t -> IParser<'u>) -> IParser<'u>
     abstract skip : IParser<'u> -> IParser<'t>
     abstract sepBy : IParser<'u> -> IParser<'t []>
 
@@ -39,6 +41,9 @@ module Parsimmon =
 
     let chain  (after: IParser<'u>) (before: IParser<'t>) : IParser<'u> =    
         before.chain after
+    
+    let bind (f: 't -> IParser<'u>) (p: IParser<'t>) : IParser<'u> =    
+        p.bind f
 
     let letter : IParser<string> = 
         import "letter" "./Parsimmon.js"
@@ -59,10 +64,13 @@ module Parsimmon =
         left 
         |> chain middle 
         |> skip right
-        
+
     let map (f: 't -> 'u) (parser: IParser<'t>) = parser.map f
 
-    let ofString (input: string) : IParser<string> = 
+    let satisfy (f: string -> bool) : IParser<'t> = 
+        import "test" "./Parsimmon.js"
+
+    let str (input: string) : IParser<string> = 
         import "string" "./Parsimmon.js"
 
     let oneOf (input: string) : IParser<string> = 

@@ -6,8 +6,8 @@ open Fable.Import
 
 QUnit.registerModule "Parsimmon Tests"
 
-QUnit.test "Parsimmon.ofString works" <| fun test ->
-    let parser = Parsimmon.ofString "hello"
+QUnit.test "Parsimmon.str works" <| fun test ->
+    let parser = Parsimmon.str "hello"
     parser
     |> Parsimmon.parse "hello"
     |> function 
@@ -33,7 +33,7 @@ QUnit.test "Parsimmon.oneOf works" <| fun test ->
     |> test.equal 0
 
 QUnit.test "Parsimmon.times works" <| fun test -> 
-    Parsimmon.ofString "hello"
+    Parsimmon.str "hello"
     |> Parsimmon.times 2
     |> Parsimmon.parse "hellohello"
     |> function 
@@ -42,7 +42,7 @@ QUnit.test "Parsimmon.times works" <| fun test ->
         | None -> test.fail()
 
 QUnit.test "Parsimmon.map works" <| fun test ->
-    Parsimmon.ofString "hello"
+    Parsimmon.str "hello"
     |> Parsimmon.map (fun result -> result.Length)
     |> Parsimmon.parse "hello"
     |> function 
@@ -106,23 +106,24 @@ QUnit.test "Optional Whitesapce works" <| fun test ->
     Parsimmon.optionalWhitespace
     |> Parsimmon.chain Parsimmon.digit
     |> Parsimmon.skip Parsimmon.optionalWhitespace
+    |> Parsimmon.map int
     |> Parsimmon.parse " 5 "
     |> function
-        | Some "5" -> test.pass()
+        | Some 5 -> test.pass()
         | otherwise -> test.fail()
 
 QUnit.test "Parsimmon.seperateBy works" <| fun test ->
     Parsimmon.digit
     |> Parsimmon.map int
-    |> Parsimmon.seperateBy (Parsimmon.ofString ",")
+    |> Parsimmon.seperateBy (Parsimmon.str ",")
     |> Parsimmon.parse "1,2,3,4,5"
     |> function
         | Some xs -> Array.sum xs |> test.equal 15
         | otherwise -> test.fail()
 
 QUnit.test "Parsimmon.between works" <| fun test ->
-    let leftBraket = Parsimmon.ofString "["
-    let rightBracket = Parsimmon.ofString "]"
+    let leftBraket = Parsimmon.str "["
+    let rightBracket = Parsimmon.str "]"
     Parsimmon.digit
     |> Parsimmon.between leftBraket rightBracket
     |> Parsimmon.map int
@@ -140,7 +141,7 @@ QUnit.test "Parsimmon.whitespace works" <| fun test ->
         | otherwise -> test.fail()
 
 QUnit.test "Parsimmon.chain works" <| fun test ->
-    Parsimmon.ofString "a"
+    Parsimmon.str "a"
     |> Parsimmon.chain Parsimmon.digit
     |> Parsimmon.map int
     |> Parsimmon.parse "a5"
@@ -154,10 +155,10 @@ QUnit.test "Parsing list of numbers works" <| fun test ->
         |> Parsimmon.many
         |> Parsimmon.map (String.concat "")
         |> Parsimmon.map int
-        |> Parsimmon.seperateBy (Parsimmon.ofString ",")
+        |> Parsimmon.seperateBy (Parsimmon.str ",")
 
-    let leftBracket = Parsimmon.ofString "["
-    let rightBraket = Parsimmon.ofString "]"
+    let leftBracket = Parsimmon.str "["
+    let rightBraket = Parsimmon.str "]"
     commaSeperatedNumbers
     |> Parsimmon.between leftBracket rightBraket
     |> Parsimmon.parse "[5,10,15,20,25]"
@@ -174,13 +175,22 @@ QUnit.test "Parsing list of numbers works with whitespace" <| fun test ->
         |> Parsimmon.many
         |> Parsimmon.map (String.concat "")
         |> Parsimmon.map int
-        |> Parsimmon.seperateBy (Parsimmon.ofString ",")
+        |> Parsimmon.seperateBy (Parsimmon.str ",")
 
-    let leftBracket = Parsimmon.ofString "["
-    let rightBraket = Parsimmon.ofString "]"
+    let leftBracket = Parsimmon.str "["
+    let rightBraket = Parsimmon.str "]"
     commaSeperatedNumbers
     |> Parsimmon.between leftBracket rightBraket
     |> Parsimmon.parse "[ 5 ,10  , 15 , 20,25]"
     |> function
         | Some [| 5; 10; 15; 20; 25 |] -> test.pass()
         | otherwise -> test.fail()
+
+QUnit.test "Parsimmon.satisfy works" <| fun test ->
+    Parsimmon.satisfy (fun input -> input.ToUpper() = input)
+    |> fun parser -> 
+        ["a"; "+"; "b" ]
+        |> List.map (fun token -> Parsimmon.parse token parser)
+        |> function 
+            | [None; Some "+"; None] -> test.pass()
+            | otherwise -> test.fail()
