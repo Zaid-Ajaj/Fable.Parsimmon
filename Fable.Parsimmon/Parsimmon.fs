@@ -19,6 +19,8 @@ type IParser<'t> =
     abstract skip : IParser<'u> -> IParser<'t>
     abstract sepBy : IParser<'u> -> IParser<'t []>
     abstract fallback : 't -> IParser<'t>
+    abstract trim : IParser<'u> -> IParser<'t>
+    abstract notFollowedBy : IParser<'u> -> IParser<'t>
 
 module Parsimmon = 
     let parseRaw (input: string) (parser: IParser<'t>) =
@@ -59,6 +61,10 @@ module Parsimmon =
     /// A parser that expects to be at the end of the input (zero characters left).
     let endOfFile : IParser<string> =   
         import "eof" "./Parsimmon.js"
+      
+    /// Returns a parser that looks for anything but whatever "p" wants to parse, and does not consume it. Yields the same result as "before".
+    let notFollowedBy (p: IParser<'u>) (before: IParser<'t>) : IParser<'t> = 
+        before.notFollowedBy p
 
     // A parser that consumes one digit
     let digit : IParser<string> = 
@@ -84,14 +90,28 @@ module Parsimmon =
 
     let tie (parser: IParser<string[]>) : IParser<string> = 
         map (String.concat "") parser 
-        
+
+    /// A parser that consumes and yields the next character of the input.
+    let any : IParser<string> = 
+        import "any" "./Parsimmon.js"
+
+    /// A parser that consumes and yields the entire remainder of the input.
+    let all : IParser<string> = 
+        import "all"  "./Parsimmon.js"
+
+    /// Returns a failing parser with the given message.
+    let fail (input: string) : IParser<string> = 
+        import "fail" "./Parsimmon.js"
+
+    /// Returns a parser that yield a single character if it passes the predicate function.
     let satisfy (f: string -> bool) : IParser<string> = 
         import "test" "./Parsimmon.js"
 
+    /// Returns a parser yield a string containing all the next characters that pass the predicate "f"
     let takeWhile (f: string -> bool) : IParser<string> =
         import "takeWhile" "./Parsimmon.js"
 
-    
+
 
     let str (input: string) : IParser<string> = 
         import "string" "./Parsimmon.js"
@@ -107,3 +127,25 @@ module Parsimmon =
 
     let noneOf (input: string) : IParser<string> = 
         import "noneOf" "./Parsimmon.js"
+    
+    let seq2 (p1: IParser<'t>) (p2:IParser<'u>) :  IParser<'t * 'u> =  
+        import "seq" "./Parsimmon.js"
+    let trim (trimmed: IParser<'a>) (p: IParser<'t>) : IParser<'t> = 
+        p.trim trimmed
+    let seq3 (p1: IParser<'t>) 
+             (p2: IParser<'u>) 
+             (p3:IParser<'v>) :  IParser<'t * 'u * 'v> =  
+        import "seq" "./Parsimmon.js"
+
+    let seq4 (p1: IParser<'t>) 
+             (p2: IParser<'u>) 
+             (p3:IParser<'v>)
+             (p4:IParser<'w>) :  IParser<'t * 'u * 'v * 'w> =  
+        import "seq" "./Parsimmon.js"
+
+    let seq5 (p1: IParser<'t>) 
+             (p2: IParser<'u>) 
+             (p3:IParser<'v>)
+             (p4:IParser<'w>) 
+             (p5:IParser<'q>) : IParser<'t * 'u * 'v * 'w * 'q> =  
+        import "seq" "./Parsimmon.js"

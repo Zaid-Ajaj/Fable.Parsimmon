@@ -178,7 +178,7 @@ QUnit.test "Parsing list of numbers works with whitespace" <| fun test ->
     let optWs = Parsimmon.optionalWhitespace
     let commaSeperatedNumbers = 
         Parsimmon.digit 
-        |> Parsimmon.between optWs optWs
+        |> Parsimmon.trim optWs
         |> Parsimmon.many
         |> Parsimmon.tie
         |> Parsimmon.map int
@@ -213,3 +213,24 @@ QUnit.test "Parsimmon.fallback works" <| fun test ->
         |> function
             | [Some 5; Some 0; Some 1] -> test.pass()
             | otherwise -> test.fail()
+            
+QUnit.test "Parsimmon.seq2 works" <| fun test -> 
+    Parsimmon.seq2 
+         (Parsimmon.digit |> Parsimmon.map int)
+         (Parsimmon.digit |> Parsimmon.map (int >> (+) 1))
+    |> Parsimmon.map (fun (a, b) -> a + b)
+    |> Parsimmon.parse "56"
+    |> function 
+        | Some 12 -> test.pass()
+        | otherwise -> test.fail()
+    
+QUnit.test "Parsimmon.seq3 works" <| fun test -> 
+    Parsimmon.seq3 
+         (Parsimmon.digit |> Parsimmon.map (int >> (+) 1))
+         (Parsimmon.digit |> Parsimmon.map (int >> (+) 2))
+         (Parsimmon.digit |> Parsimmon.map (int >> (+) 3))
+    |> Parsimmon.map (fun (a, b, c) -> a + b + c)
+    |> Parsimmon.parse "123"
+    |> function 
+        | Some 12 -> test.pass()
+        | otherwise -> test.fail()
