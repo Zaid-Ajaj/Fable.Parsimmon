@@ -1,7 +1,7 @@
 
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
-Project("{f2a71f9b-5d33-465a-a702-920d77279786}") = "Fable.Parsimmon", "src\Fable.Parsimmon.fsproj", "{E5DEFC96-37CF-4844-9C9E-CFA0A9A8AED3}"
+Project("{f2a71f9b-5d33-465a-a702-920d77279786}") = "Fable.Parsimmon", "Fable.Parsimmon\Fable.Parsimmon.fsproj", "{E5DEFC96-37CF-4844-9C9E-CFA0A9A8AED3}"
 EndProject
 Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Fable.Parsimmon.Tests", "Fable.Parsimmon.Tests\Fable.Parsimmon.Tests.fsproj", "{48EDDC46-7D5C-40AF-9643-B02DD1E24B07}"
 EndProject

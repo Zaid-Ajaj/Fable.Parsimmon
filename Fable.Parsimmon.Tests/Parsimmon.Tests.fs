@@ -102,6 +102,15 @@ QUnit.test "Parsimmon.letter works" <| fun test ->
         | Some [| "A"; "B"; "C" |] -> test.pass()
         | otherwise -> test.fail()
 
+QUnit.test "Optional Whitesapce works" <| fun test -> 
+    Parsimmon.optionalWhitespace
+    |> Parsimmon.chain Parsimmon.digit
+    |> Parsimmon.skip Parsimmon.optionalWhitespace
+    |> Parsimmon.parse " 5 "
+    |> function
+        | Some "5" -> test.pass()
+        | otherwise -> test.fail()
+
 QUnit.test "Parsimmon.seperateBy works" <| fun test ->
     Parsimmon.digit
     |> Parsimmon.map int
@@ -111,10 +120,66 @@ QUnit.test "Parsimmon.seperateBy works" <| fun test ->
         | Some xs -> Array.sum xs |> test.equal 15
         | otherwise -> test.fail()
 
+QUnit.test "Parsimmon.between works" <| fun test ->
+    let leftBraket = Parsimmon.ofString "["
+    let rightBracket = Parsimmon.ofString "]"
+    Parsimmon.digit
+    |> Parsimmon.between leftBraket rightBracket
+    |> Parsimmon.map int
+    |> Parsimmon.parse "[5]"
+    |> function
+        | Some 5 -> test.pass()
+        | otherwise -> test.fail()
+
 QUnit.test "Parsimmon.whitespace works" <| fun test -> 
     Parsimmon.letter
     |> Parsimmon.seperateBy Parsimmon.whitespace
     |> Parsimmon.parse "a b c"
     |> function
         | Some [| "a"; "b"; "c" |] -> test.pass()
+        | otherwise -> test.fail()
+
+QUnit.test "Parsimmon.chain works" <| fun test ->
+    Parsimmon.ofString "a"
+    |> Parsimmon.chain Parsimmon.digit
+    |> Parsimmon.map int
+    |> Parsimmon.parse "a5"
+    |> function 
+        | Some 5 -> test.pass()
+        | otherwise -> test.fail()
+
+QUnit.test "Parsing list of numbers works" <| fun test ->
+    let commaSeperatedNumbers = 
+        Parsimmon.digit
+        |> Parsimmon.many
+        |> Parsimmon.map (String.concat "")
+        |> Parsimmon.map int
+        |> Parsimmon.seperateBy (Parsimmon.ofString ",")
+
+    Parsimmon.ofString "["
+    |> Parsimmon.chain commaSeperatedNumbers
+    |> Parsimmon.skip (Parsimmon.ofString "]")
+    |> Parsimmon.parse "[5,10,15,20,25]"
+    |> function
+        | Some [| 5; 10; 15; 20; 25 |] -> test.pass()
+        | otherwise -> test.fail()
+
+
+QUnit.test "Parsing list of numbers works with whitespace" <| fun test ->
+    let optWs = Parsimmon.optionalWhitespace
+    let commaSeperatedNumbers = 
+        Parsimmon.digit 
+        |> Parsimmon.between optWs optWs
+        |> Parsimmon.many
+        |> Parsimmon.map (String.concat "")
+        |> Parsimmon.map int
+        |> Parsimmon.seperateBy (Parsimmon.ofString ",")
+
+    let leftBracket = Parsimmon.ofString "["
+    let rightBraket = Parsimmon.ofString "]"
+    commaSeperatedNumbers
+    |> Parsimmon.between leftBracket rightBraket
+    |> Parsimmon.parse "[ 5 ,10  , 15 ,20,25]"
+    |> function
+        | Some [| 5; 10; 15; 20; 25 |] -> test.pass()
         | otherwise -> test.fail()
