@@ -160,7 +160,7 @@ QUnit.test "Parsing list of numbers works" <| fun test ->
     let commaSeperatedNumbers = 
         Parsimmon.digit
         |> Parsimmon.many
-        |> Parsimmon.map (String.concat "")
+        |> Parsimmon.tie
         |> Parsimmon.map int
         |> Parsimmon.seperateBy (Parsimmon.str ",")
 
@@ -180,7 +180,7 @@ QUnit.test "Parsing list of numbers works with whitespace" <| fun test ->
         Parsimmon.digit 
         |> Parsimmon.between optWs optWs
         |> Parsimmon.many
-        |> Parsimmon.map (String.concat "")
+        |> Parsimmon.tie
         |> Parsimmon.map int
         |> Parsimmon.seperateBy (Parsimmon.str ",")
 

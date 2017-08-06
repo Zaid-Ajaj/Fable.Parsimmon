@@ -82,6 +82,9 @@ module Parsimmon =
 
     let map (f: 't -> 'u) (parser: IParser<'t>) = parser.map f
 
+    let tie (parser: IParser<string[]>) : IParser<string> = 
+        map (String.concat "") parser 
+        
     let satisfy (f: string -> bool) : IParser<string> = 
         import "test" "./Parsimmon.js"
 
