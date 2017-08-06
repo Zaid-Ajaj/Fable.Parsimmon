@@ -1,5 +1,5 @@
 # Fable.Parsimmon
-[Fable](http://fable.io/) binding and helpers for the [Parsimmon](https://github.com/jneen/parsimmon) parser with a simple API. 
+[Fable](http://fable.io/) binding and helpers for the [Parsimmon](https://github.com/jneen/parsimmon) parser combinator library.
 
 # Installation
 You can install the library from Nuget using Paket:
