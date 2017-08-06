@@ -165,9 +165,9 @@ QUnit.test "Parsing list of numbers works" <| fun test ->
         |> Parsimmon.seperateBy (Parsimmon.str ",")
 
     let leftBracket = Parsimmon.str "["
-    let rightBraket = Parsimmon.str "]"
+    let rightBracket = Parsimmon.str "]"
     commaSeperatedNumbers
-    |> Parsimmon.between leftBracket rightBraket
+    |> Parsimmon.between leftBracket rightBracket
     |> Parsimmon.parse "[5,10,15,20,25]"
     |> function
         | Some [| 5; 10; 15; 20; 25 |] -> test.pass()
@@ -185,9 +185,9 @@ QUnit.test "Parsing list of numbers works with whitespace" <| fun test ->
         |> Parsimmon.seperateBy (Parsimmon.str ",")
 
     let leftBracket = Parsimmon.str "["
-    let rightBraket = Parsimmon.str "]"
+    let rightBracket = Parsimmon.str "]"
     commaSeperatedNumbers
-    |> Parsimmon.between leftBracket rightBraket
+    |> Parsimmon.between leftBracket rightBracket
     |> Parsimmon.parse "[ 5 ,10  , 15 , 20,25]"
     |> function
         | Some [| 5; 10; 15; 20; 25 |] -> test.pass()

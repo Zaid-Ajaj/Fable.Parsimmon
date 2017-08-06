@@ -4,18 +4,20 @@
 Example from the tests:
 ```fs
 QUnit.test "Parsing list of numbers works" <| fun test ->
+    let comma = Parsimmon.str ","
+    
     let commaSeperatedNumbers = 
         Parsimmon.digit
         |> Parsimmon.many
         |> Parsimmon.tie
         |> Parsimmon.map int
-        |> Parsimmon.seperateBy (Parsimmon.str ",")
+        |> Parsimmon.seperateBy comma
 
     let leftBracket = Parsimmon.str "["
-    let rightBraket = Parsimmon.str "]"
+    let rightBracket = Parsimmon.str "]"
 
     commaSeperatedNumbers
-    |> Parsimmon.between leftBracket rightBraket
+    |> Parsimmon.between leftBracket rightBracket
     |> Parsimmon.parse "[5,10,15,20,25]"
     |> function
         | Some [| 5; 10; 15; 20; 25 |] -> test.pass()
