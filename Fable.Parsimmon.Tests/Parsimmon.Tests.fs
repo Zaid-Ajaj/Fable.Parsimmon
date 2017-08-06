@@ -213,7 +213,7 @@ QUnit.test "Parsimmon.fallback works" <| fun test ->
         |> function
             | [Some 5; Some 0; Some 1] -> test.pass()
             | otherwise -> test.fail()
-            
+
 QUnit.test "Parsimmon.seq2 works" <| fun test -> 
     Parsimmon.seq2 
          (Parsimmon.digit |> Parsimmon.map int)
@@ -233,4 +233,26 @@ QUnit.test "Parsimmon.seq3 works" <| fun test ->
     |> Parsimmon.parse "123"
     |> function 
         | Some 12 -> test.pass()
+        | otherwise -> test.fail()
+
+
+QUnit.test "Parsimmon.orTry works" <| fun test ->
+    let parser = 
+      Parsimmon.str "+"
+      |> Parsimmon.orTry (Parsimmon.str "-")
+
+    parser
+    |> Parsimmon.parse "+"
+    |> Option.isSome
+    |> fun result -> test.equalWithMsg result true "First parser works"
+
+    parser
+    |> Parsimmon.parse "-"
+    |> Option.isSome
+    |> fun result -> test.equalWithMsg result true "Second parser works"
+
+    parser
+    |> Parsimmon.parse "other-text"
+    |> function
+        | None -> test.pass()
         | otherwise -> test.fail()

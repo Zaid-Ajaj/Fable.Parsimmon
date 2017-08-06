@@ -23,6 +23,8 @@ type IParser<'t> =
     abstract notFollowedBy : IParser<'u> -> IParser<'t>
     abstract atMost : int -> IParser<'t[]>
     abstract atLeast : int -> IParser<'t[]>
+    [<Emit("$0.or($1)")>]
+    abstract orTry : IParser<'t> -> IParser<'t>
 
 module Parsimmon = 
     let parseRaw (input: string) (parser: IParser<'t>) =
@@ -34,6 +36,10 @@ module Parsimmon =
             match result.status with
             | true -> Some result.value
             | false -> None
+
+    /// Returns a new parser which tries parser, and if it fails uses otherParser. Example:
+    let orTry (otherParser: IParser<'t>) (parser: IParser<'t>) : IParser<'t> = 
+        parser.orTry(otherParser)
 
     let times<'t> (n: int) (parser : IParser<'t>) : IParser<'t[]> = 
         parser.times n
