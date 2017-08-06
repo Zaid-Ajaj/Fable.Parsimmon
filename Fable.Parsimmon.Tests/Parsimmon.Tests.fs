@@ -256,3 +256,20 @@ QUnit.test "Parsimmon.orTry works" <| fun test ->
     |> function
         | None -> test.pass()
         | otherwise -> test.fail()
+        
+QUnit.test "Parsimmon.choose works" <| fun test -> 
+    [ Parsimmon.str "a"
+      Parsimmon.str "ab" ] 
+    |> Parsimmon.choose
+    |> Parsimmon.parse "ab"
+    |> function
+        | None -> test.pass()
+        | otherwise -> test.fail()
+
+    [ Parsimmon.str "ab" 
+      Parsimmon.str "a"  ]
+    |> Parsimmon.choose
+    |> Parsimmon.parse "ab"
+    |> function
+        | Some "ab" -> test.pass()
+        | otherwise -> test.fail()

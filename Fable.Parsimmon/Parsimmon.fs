@@ -25,6 +25,7 @@ type IParser<'t> =
     abstract atLeast : int -> IParser<'t[]>
     [<Emit("$0.or($1)")>]
     abstract orTry : IParser<'t> -> IParser<'t>
+    abstract sepBy1 : IParser<'u> -> IParser<'t []>
 
 module Parsimmon = 
     let parseRaw (input: string) (parser: IParser<'t>) =
@@ -58,6 +59,10 @@ module Parsimmon =
 
     let many (parser : IParser<'t>) : IParser<'t[]> = 
         parser.many()
+
+    /// This is the same as Parsimmon.sepBy, but matches the parser at least once.
+    let seperateByAtLeastOne (seperator : IParser<'u>) (parser: IParser<'t>) : IParser<'t[]> = 
+        parser.sepBy1(seperator)
 
     /// Expects parser "after" to follow parser "before", and yields the result of "before".
     let chain  (after: IParser<'u>) (before: IParser<'t>) : IParser<'u> =    
@@ -98,6 +103,8 @@ module Parsimmon =
     let seperateBy (content: IParser<'u>) (others: IParser<'t>) : IParser<'t[]> =
         others.sepBy(content)
 
+
+
     let between (left: IParser<'t>) (right: IParser<'u>) (middle: IParser<'v>) =
         left 
         |> chain middle 
@@ -111,6 +118,10 @@ module Parsimmon =
     /// A parser that consumes and yields the next character of the input.
     let any : IParser<string> = 
         import "any" "./Parsimmon.js"
+
+    /// Accepts any number of parsers, yielding the value of the first one that succeeds, backtracking in between.
+    let choose (ps: IParser<'t> list) : IParser<'t> = 
+        List.reduce (fun acc parser -> acc.orTry(parser)) ps
 
     /// A parser that consumes and yields the entire remainder of the input.
     let all : IParser<string> = 
