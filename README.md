@@ -1,5 +1,6 @@
 # Fable.Parsimmon
-[Fable](http://fable.io/) binding for the [Parsimmon](https://github.com/jneen/parsimmon) parser with a simple typed Api. 
+[Fable](http://fable.io/) binding for the [Parsimmon](https://github.com/jneen/parsimmon) parser with a simple API. 
+
 Example from the tests:
 ```fs
 QUnit.test "Parsing list of numbers works" <| fun test ->
@@ -12,6 +13,7 @@ QUnit.test "Parsing list of numbers works" <| fun test ->
 
     let leftBracket = Parsimmon.ofString "["
     let rightBraket = Parsimmon.ofString "]"
+
     commaSeperatedNumbers
     |> Parsimmon.between leftBracket rightBraket
     |> Parsimmon.parse "[5,10,15,20,25]"
