@@ -57,6 +57,13 @@ QUnit.test "Parsimmon.many works" <| fun test ->
         | Some [| "a"; "b"; "c" |] -> test.pass()
         | otherwise -> test.fail()
 
+QUnit.test "Parsimmon.letters works" <| fun test ->
+    Parsimmon.letters
+    |> Parsimmon.parse "abc"
+    |> function
+        | Some [| "a"; "b"; "c" |] -> test.pass()
+        | otherwise -> test.fail()
+
 QUnit.test "Parsimmon.noneOf works" <| fun test ->
     let parser = Parsimmon.noneOf "abc"
     ["a"; "b"; "c"]
@@ -193,4 +200,16 @@ QUnit.test "Parsimmon.satisfy works" <| fun test ->
         |> List.map (fun token -> Parsimmon.parse token parser)
         |> function 
             | [None; Some "+"; None] -> test.pass()
+            | otherwise -> test.fail()
+
+
+QUnit.test "Parsimmon.fallback works" <| fun test ->
+    Parsimmon.digit
+    |> Parsimmon.map int
+    |> Parsimmon.fallback 0
+    |> fun parser -> 
+        ["5"; ""; "1"]
+        |> List.map (fun input -> Parsimmon.parse input parser)
+        |> function
+            | [Some 5; Some 0; Some 1] -> test.pass()
             | otherwise -> test.fail()

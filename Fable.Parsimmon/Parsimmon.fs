@@ -18,6 +18,7 @@ type IParser<'t> =
     abstract bind : ('t -> IParser<'u>) -> IParser<'u>
     abstract skip : IParser<'u> -> IParser<'t>
     abstract sepBy : IParser<'u> -> IParser<'t []>
+    abstract fallback : 't -> IParser<'t>
 
 module Parsimmon = 
     let parseRaw (input: string) (parser: IParser<'t>) =
@@ -39,23 +40,37 @@ module Parsimmon =
     let many (parser : IParser<'t>) : IParser<'t[]> = 
         parser.many()
 
+    /// Expects parser "after" to follow parser "before", and yields the result of "before".
     let chain  (after: IParser<'u>) (before: IParser<'t>) : IParser<'u> =    
         before.chain after
     
+    /// Returns a new parser which tries parser "p", and on success calls the function "f" with the result of the parse, which is expected to return another parser, which will be tried next. This allows you to dynamically decide how to continue the parse, which is impossible with the other combinators.    
     let bind (f: 't -> IParser<'u>) (p: IParser<'t>) : IParser<'u> =    
         p.bind f
 
+    /// A parser that consumes one letter
     let letter : IParser<string> = 
         import "letter" "./Parsimmon.js"
 
-    let letters : IParser<string> = 
+    /// A parser that consumes one or more letters
+    let letters : IParser<string[]> = 
         import "letters" "./Parsimmon.js"
 
+    /// A parser that expects to be at the end of the input (zero characters left).
+    let endOfFile : IParser<string> =   
+        import "eof" "./Parsimmon.js"
+
+    // A parser that consumes one digit
     let digit : IParser<string> = 
         import "digit" "./Parsimmon.js"
 
+    // A parser that consumes one or more digits
     let digits : IParser<string[]> = 
         import "digits" "./Parsimmon.js"
+
+    /// Returns a new parser which tries "parser" and, if it fails, yields value without consuming any input.
+    let fallback (value: 't) (parser: IParser<'t>) : IParser<'t> =
+        parser.fallback value 
 
     let seperateBy (content: IParser<'u>) (others: IParser<'t>) : IParser<'t[]> =
         others.sepBy(content)
@@ -67,8 +82,13 @@ module Parsimmon =
 
     let map (f: 't -> 'u) (parser: IParser<'t>) = parser.map f
 
-    let satisfy (f: string -> bool) : IParser<'t> = 
+    let satisfy (f: string -> bool) : IParser<string> = 
         import "test" "./Parsimmon.js"
+
+    let takeWhile (f: string -> bool) : IParser<string> =
+        import "takeWhile" "./Parsimmon.js"
+
+    
 
     let str (input: string) : IParser<string> = 
         import "string" "./Parsimmon.js"

@@ -9,11 +9,11 @@ QUnit.test "Parsing list of numbers works" <| fun test ->
         |> Parsimmon.many
         |> Parsimmon.map (String.concat "")
         |> Parsimmon.map int
-        |> Parsimmon.seperateBy (Parsimmon.ofString ",")
+        |> Parsimmon.seperateBy (Parsimmon.str ",")
 
-    let leftBracket = Parsimmon.ofString "["
-    let rightBraket = Parsimmon.ofString "]"
-
+    let leftBracket = Parsimmon.str "["
+    let rightBraket = Parsimmon.str "]"
+    
     commaSeperatedNumbers
     |> Parsimmon.between leftBracket rightBraket
     |> Parsimmon.parse "[5,10,15,20,25]"
