@@ -21,6 +21,8 @@ type IParser<'t> =
     abstract fallback : 't -> IParser<'t>
     abstract trim : IParser<'u> -> IParser<'t>
     abstract notFollowedBy : IParser<'u> -> IParser<'t>
+    abstract atMost : int -> IParser<'t[]>
+    abstract atLeast : int -> IParser<'t[]>
 
 module Parsimmon = 
     let parseRaw (input: string) (parser: IParser<'t>) =
@@ -35,6 +37,15 @@ module Parsimmon =
 
     let times<'t> (n: int) (parser : IParser<'t>) : IParser<'t[]> = 
         parser.times n
+
+    /// Expects parser at least n times. Yields an array of the results.
+    let atLeast (n: int) (parser: IParser<'t>) : IParser<'t[]> = 
+        parser.atLeast n
+
+
+    /// Expects parser at most n times. Yields an array of the results.
+    let atMost (n: int) (parser: IParser<'t>) : IParser<'t[]> = 
+        parser.atMost n
 
     let skip (skipped: IParser<'u>) (keep: IParser<'t>) : IParser<'t> = 
         keep.skip skipped
@@ -145,7 +156,7 @@ module Parsimmon =
 
     let seq5 (p1: IParser<'t>) 
              (p2: IParser<'u>) 
-             (p3:IParser<'v>)
-             (p4:IParser<'w>) 
-             (p5:IParser<'q>) : IParser<'t * 'u * 'v * 'w * 'q> =  
+             (p3: IParser<'v>)
+             (p4: IParser<'w>) 
+             (p5: IParser<'q>) : IParser<'t * 'u * 'v * 'w * 'q> =  
         import "seq" "./Parsimmon.js"
