@@ -160,7 +160,7 @@ QUnit.test "Parsing list of numbers works" <| fun test ->
     let commaSeperatedNumbers = 
         Parsimmon.digit
         |> Parsimmon.many
-        |> Parsimmon.tie
+        |> Parsimmon.concat
         |> Parsimmon.map int
         |> Parsimmon.seperateBy (Parsimmon.str ",")
 

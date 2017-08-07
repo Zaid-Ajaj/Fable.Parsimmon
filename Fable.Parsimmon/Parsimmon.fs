@@ -173,8 +173,14 @@ module Parsimmon =
     
     let seq2 (p1: IParser<'t>) (p2:IParser<'u>) :  IParser<'t * 'u> =  
         import "seq" "./Parsimmon.js"
+
     let trim (trimmed: IParser<'a>) (p: IParser<'t>) : IParser<'t> = 
         p.trim trimmed
+    
+    /// Equavilant to `parser.map (String.concat "")`
+    let concat (parser: IParser<string[]>) : IParser<string> =
+        parser.map (String.concat "")
+    
     let seq3 (p1: IParser<'t>) 
              (p2: IParser<'u>) 
              (p3:IParser<'v>) :  IParser<'t * 'u * 'v> =  
