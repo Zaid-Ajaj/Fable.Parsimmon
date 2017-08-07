@@ -156,16 +156,19 @@ QUnit.test "Parsimmon.chain works" <| fun test ->
         | Some 5 -> test.pass()
         | otherwise -> test.fail()
 
-QUnit.test "Parsing list of numbers works" <| fun test ->
+QUnit.test "Parsing list of numbers" <| fun test ->
+    let comma = Parsimmon.str ","
+
     let commaSeperatedNumbers = 
         Parsimmon.digit
         |> Parsimmon.many
         |> Parsimmon.concat
         |> Parsimmon.map int
-        |> Parsimmon.seperateBy (Parsimmon.str ",")
+        |> Parsimmon.seperateBy comma
 
     let leftBracket = Parsimmon.str "["
     let rightBracket = Parsimmon.str "]"
+    
     commaSeperatedNumbers
     |> Parsimmon.between leftBracket rightBracket
     |> Parsimmon.parse "[5,10,15,20,25]"
