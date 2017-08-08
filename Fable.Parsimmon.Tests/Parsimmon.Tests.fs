@@ -292,3 +292,19 @@ QUnit.test "Parsimmon.ofLazy works" <| fun test ->
     |> function 
         | [ Some "X"; Some "X"; Some "X" ] -> test.pass()
         | otherwise -> test.fail()
+
+
+// from https://github.com/jneen/parsimmon/blob/master/API.md#parsimmonindex
+QUnit.test "Parsimmon.index works" <| fun test ->
+    Parsimmon.seq3 
+        (Parsimmon.oneOf "Q\n" |> Parsimmon.many)
+        (Parsimmon.str "B")
+        Parsimmon.index
+    |> Parsimmon.parse "QQ\n\nQQQB"
+    |> function
+        | Some (_, _, index) -> 
+            test.equal index.offset 8
+            test.equal index.line 3
+            test.equal index.column 5
+
+        | otherwise -> test.fail()

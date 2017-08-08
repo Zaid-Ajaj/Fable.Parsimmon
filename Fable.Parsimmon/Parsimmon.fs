@@ -7,6 +7,11 @@ type ParseResult<'t> =
     abstract status : bool
     abstract value : 't 
 
+type IParserOffSet = 
+    abstract offset : int
+    abstract line : int
+    abstract column : int
+
 type IParser<'t> = 
     abstract map<'u> : ('t -> 'u) -> IParser<'u>
     abstract parse : string -> ParseResult<'t>
@@ -37,6 +42,10 @@ module Parsimmon =
             match result.status with
             | true -> Some result.value
             | false -> None
+
+    /// A parser that consumes no input and yields an object an object representing the current offset into the parse: it has a 0-based character offset property and 1-based line and column properties
+    let index : IParser<IParserOffSet> = 
+        import "index" "./Parsimmon.js"
 
     /// Returns a new parser which tries parser, and if it fails uses otherParser. Example:
     let orTry (otherParser: IParser<'t>) (parser: IParser<'t>) : IParser<'t> = 
@@ -118,15 +127,15 @@ module Parsimmon =
     let seperateBy (content: IParser<'u>) (others: IParser<'t>) : IParser<'t[]> =
         others.sepBy(content)
 
-
-
     let between (left: IParser<'t>) (right: IParser<'u>) (middle: IParser<'v>) =
         left 
         |> chain middle 
         |> skip right
 
+    /// Transforms the parsed value of the given parser.  
     let map (f: 't -> 'u) (parser: IParser<'t>) = parser.map f
 
+    /// Alias of Parsimmon.concat
     let tie (parser: IParser<string[]>) : IParser<string> = 
         map (String.concat "") parser 
 
@@ -154,11 +163,11 @@ module Parsimmon =
     let takeWhile (f: string -> bool) : IParser<string> =
         import "takeWhile" "./Parsimmon.js"
 
-
-
+    /// Returns a parser that can only parse the exact given input string 
     let str (input: string) : IParser<string> = 
         import "string" "./Parsimmon.js"
 
+    /// Returns a parser that parses any of the characters of the input string
     let oneOf (input: string) : IParser<string> = 
         import "oneOf" "./Parsimmon.js"
 
@@ -168,6 +177,7 @@ module Parsimmon =
     let optionalWhitespace : IParser<string> = 
         import "optWhitespace" "./Parsimmon.js"
 
+    /// Returns a parser that parses comsumes any character of a string other than the characters of the input string
     let noneOf (input: string) : IParser<string> = 
         import "noneOf" "./Parsimmon.js"
     
