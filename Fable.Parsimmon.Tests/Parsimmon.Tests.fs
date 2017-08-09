@@ -139,6 +139,18 @@ QUnit.test "Parsimmon.between works" <| fun test ->
         | Some 5 -> test.pass()
         | otherwise -> test.fail()
 
+QUnit.test "Parsimmon.between with many works" <| fun test ->
+    let leftBraket = Parsimmon.str "["
+    let rightBracket = Parsimmon.str "]"
+    Parsimmon.digit
+    |> Parsimmon.between leftBraket rightBracket
+    |> Parsimmon.map int
+    |> Parsimmon.many 
+    |> Parsimmon.parse "[5][6][7]"
+    |> function
+        | Some [| 5; 6; 7 |] -> test.pass()
+        | otherwise -> test.fail()
+
 QUnit.test "Parsimmon.whitespace works" <| fun test -> 
     Parsimmon.letter
     |> Parsimmon.seperateBy Parsimmon.whitespace
@@ -277,7 +289,7 @@ QUnit.test "Parsimmon.choose works" <| fun test ->
         | Some "ab" -> test.pass()
         | otherwise -> test.fail()
 
-QUnit.test "Parsimmon.ofLazy works" <| fun test -> 
+QUnit.test "Parsimmon.ofLazy works with single character strings" <| fun test -> 
     
     let rec lazyValue = Parsimmon.ofLazy <| fun () -> 
         [ Parsimmon.str "X" 
@@ -292,6 +304,65 @@ QUnit.test "Parsimmon.ofLazy works" <| fun test ->
     |> function 
         | [ Some "X"; Some "X"; Some "X" ] -> test.pass()
         | otherwise -> test.fail()
+
+QUnit.test "Parsimmon.ofLazy works with multiple character strings" <| fun test -> 
+    let rec lazyValue = Parsimmon.ofLazy <| fun () -> 
+        [ Parsimmon.str "XY" 
+          Parsimmon.str "("
+             |> Parsimmon.chain lazyValue
+             |> Parsimmon.skip (Parsimmon.str ")") ]
+        |> Parsimmon.choose
+
+    ["XY"; "(XY)"; "((XY))"] 
+    |> List.map (fun token -> Parsimmon.parse token lazyValue)
+    |> function 
+        | [ Some "XY"; Some "XY"; Some "XY" ] -> test.pass()
+        | otherwise -> test.fail()
+
+QUnit.test "Parsimmon.ofLazy works with single digit parser" <| fun test -> 
+    
+    let rec lazyValue = Parsimmon.ofLazy <| fun () -> 
+        [ Parsimmon.digit |> Parsimmon.map int
+          Parsimmon.str "("
+             |> Parsimmon.chain lazyValue
+             |> Parsimmon.skip (Parsimmon.str ")") ]
+        |> Parsimmon.choose
+    
+
+    ["5"; "(6)"; "((7))"] 
+    |> List.map (fun token -> Parsimmon.parse token lazyValue)
+    |> function 
+        | [ Some 5; Some 6; Some 7 ] -> test.pass()
+        | otherwise -> test.fail()
+
+QUnit.test "Parsimmon.ofLazy works with multiple digit parser" <| fun test -> 
+    let rec lazyValue = Parsimmon.ofLazy <| fun () -> 
+        [ Parsimmon.digit 
+             |> Parsimmon.atLeastOneOrMany // this is a must, Parsimmon.many won't work
+             |> Parsimmon.concat
+             |> Parsimmon.map int
+          Parsimmon.str "("
+             |> Parsimmon.chain lazyValue
+             |> Parsimmon.skip (Parsimmon.str ")") ]
+        |> Parsimmon.choose
+    
+    lazyValue
+    |> Parsimmon.parse "52"
+    |> function
+        | Some 52 -> test.passWith "No parenthesis case works"
+        | otherwise -> test.failWith "No parenthesis case does not work"
+
+    lazyValue
+    |> Parsimmon.parse "(65)"
+    |> function
+        | Some 65 -> test.passWith "One parenthesis case works"
+        | otherwise -> test.failWith "One parenthesis case does not work"
+
+    lazyValue
+    |> Parsimmon.parse "((89))"
+    |> function
+        | Some 89 -> test.passWith "Multiple parenthesis case works"
+        | otherwise -> test.failWith "Multiple parenthesis case does not work"
 
 
 // from https://github.com/jneen/parsimmon/blob/master/API.md#parsimmonindex

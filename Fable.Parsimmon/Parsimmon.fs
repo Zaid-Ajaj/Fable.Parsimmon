@@ -177,6 +177,14 @@ module Parsimmon =
     let optionalWhitespace : IParser<string> = 
         import "optWhitespace" "./Parsimmon.js"
 
+    /// Returns a parser that succeeds one or more times 
+    let atLeastOneOrMany (parser: IParser<'t>) : IParser<'t[]> = 
+        atLeast 1 parser
+
+    let stringReturn (input: string) (value: 't) : IParser<'t> = 
+        str input 
+        |> map (fun _ -> value)
+
     /// Returns a parser that parses comsumes any character of a string other than the characters of the input string
     let noneOf (input: string) : IParser<string> = 
         import "noneOf" "./Parsimmon.js"
