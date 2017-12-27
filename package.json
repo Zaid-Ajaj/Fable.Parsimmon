@@ -3,7 +3,7 @@
   "scripts": {
     "build": "webpack -p",
     "start": "webpack-dev-server",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node ./node_modules/qunitjs/bin/qunit public/bundle.js"
   },
   "dependencies": {
     "babel-runtime": "6.23.0"
@@ -16,6 +16,7 @@
     "fable-loader": "1.0.6",
     "fable-utils": "^1.0.6",
     "loglevel": "^1.6.0",
+    "qunitjs": "^2.4.1",
     "webpack": "3.3.0",
     "webpack-dev-server": "^2.9.7"
   }

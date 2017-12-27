@@ -2,7 +2,7 @@
 open System.Threading.Tasks
 
 open System
-
+open System.IO
 open Fake
 
 let libPath = "./Fable.Parsimmon"
@@ -42,7 +42,7 @@ Target "InstallClient" (fun _ ->
   run dotnetCli "restore" testsPath
 )
 
-Target "RunTests" <| fun _ ->
+Target "RunLiveTests" <| fun _ ->
     run dotnetCli "fable npm-run start" testsPath
 
 let publish projectPath = fun () ->
@@ -55,17 +55,31 @@ let publish projectPath = fun () ->
         | Some nugetKey -> nugetKey
         | None -> failwith "The Nuget API key must be set in a NUGET_KEY environmental variable"
     let nupkg = 
-        System.IO.Directory.GetFiles(projectPath </> "bin" </> "Release") 
+        Directory.GetFiles(projectPath </> "bin" </> "Release") 
         |> Seq.head 
-        |> System.IO.Path.GetFullPath
-        
+        |> Path.GetFullPath
+
     let pushCmd = sprintf "nuget push %s -s nuget.org -k %s" nupkg nugetKey
     run dotnetCli pushCmd projectPath
 
 Target "PublishNuget" (publish libPath)
 
+
+Target "RunQUnitTests" <| fun _ ->
+    let bundlePath = Path.Combine("public", "bundle.js") |> Path.GetFullPath
+    let bundleSourceMap = Path.Combine("public", "bundle.js.map") |> Path.GetFullPath
+    DeleteFile bundlePath
+    DeleteFile bundleSourceMap
+    run dotnetCli "fable npm-run build" testsPath
+    run "npm" "run test" "."
+
 "Clean"
   ==> "InstallClient"
-  ==> "RunTests"
+  ==> "RunLiveTests"
 
-RunTargetOrDefault "RunTests"
+
+"Clean"
+ ==> "InstallClient"
+ ==> "RunQUnitTests"
+
+RunTargetOrDefault "RunQUnitTests"
