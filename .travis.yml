@@ -8,7 +8,6 @@ addons:
             - libunwind8
 
 before_script:
-  # Update npm
   - npm install -g npm
 
 script:
