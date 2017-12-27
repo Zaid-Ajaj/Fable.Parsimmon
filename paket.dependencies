@@ -1,8 +1,13 @@
-source https://nuget.org/api/v2
+group Main
+    source https://api.nuget.org/v3/index.json
+    storage:none
+    
+    clitool dotnet-fable
+    nuget FSharp.Core
+    nuget Fable.Core
+    nuget Fable.Import.Browser
 
-clitool dotnet-fable
+group Build
+  source https://api.nuget.org/v3/index.json
 
-nuget FSharp.Core
-nuget Fable.Core
-nuget Fable.Import.Browser
-nuget FSharp.NET.Sdk
+  nuget FAKE

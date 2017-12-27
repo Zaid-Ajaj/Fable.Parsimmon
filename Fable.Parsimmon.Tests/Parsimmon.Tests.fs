@@ -3,6 +3,7 @@ module Fable.Parsimmon.Tests
 open FSharp.Core
 open Fable.Parsimmon
 open Fable.Import
+open Fable.Core.JsInterop
 
 QUnit.registerModule "Parsimmon Tests"
 
@@ -379,3 +380,66 @@ QUnit.test "Parsimmon.index works" <| fun test ->
             test.equal index.column 5
 
         | otherwise -> test.fail()
+
+
+type NestedList<'a> = 
+    | Element of 'a
+    | Many of NestedList<'a> list
+
+
+QUnit.test "Parsimmon.ofLazy works with list of digits parser" <| fun test -> 
+    
+    let rec lazyValue = Parsimmon.ofLazy <| fun () -> 
+
+        let elementParser = 
+          Parsimmon.digit 
+          |> Parsimmon.atLeastOneOrMany // this is a must, Parsimmon.many won't work
+          |> Parsimmon.concat
+          |> Parsimmon.map (int >> Element)
+          
+        let expression = 
+            lazyValue
+            |> Parsimmon.seperateBy (Parsimmon.str " ")
+        
+        let listParser = 
+          Parsimmon.str "["
+          |> Parsimmon.chain expression
+          |> Parsimmon.skip (Parsimmon.str "]")
+          |> Parsimmon.map (List.ofArray >> Many)   
+        
+        Parsimmon.choose [ listParser; elementParser ]
+    
+    Parsimmon.parse "555" lazyValue
+    |> function 
+        | Some (Element 555) -> test.passWith "Single element case works"
+        | otherwise -> test.failWith "Single element case fails"
+
+    Parsimmon.parse "[5]" lazyValue
+    |> function 
+        | Some (Many [Element 5]) -> test.passWith "Single element list case works"
+        | otherwise -> test.failWith "Single element list case fails"
+
+    Parsimmon.parse "[]" lazyValue
+    |> function 
+        | Some (Many []) -> test.passWith "empty list case works"
+        | otherwise -> test.failWith "empty list case fails"
+
+    Parsimmon.parse "[5 6 7]" lazyValue
+    |> function 
+        | Some (Many [Element 5; Element 6; Element 7]) -> test.passWith "many elements single list case works"
+        | otherwise -> test.failWith "many elements single list case fails"
+
+    Parsimmon.parse "[[5 6 7]]" lazyValue
+    |> function 
+        | Some (Many [Many [Element 5; Element 6; Element 7]]) -> test.passWith "many nested elements single list case works"
+        | otherwise -> test.failWith "many nested elements single list case fails"
+
+    Parsimmon.parse "[1 [5 6 7]]" lazyValue
+    |> function 
+        | Some (Many [Element 1; Many [Element 5; Element 6; Element 7]]) -> test.passWith "many nested elements many list case works"
+        | otherwise -> test.failWith "many nested elements many list case fails"
+
+    Parsimmon.parse "[1 [5 6 7] [1]]" lazyValue
+    |> function 
+        | Some (Many [Element 1; Many [Element 5; Element 6; Element 7]; Many [Element 1]]) -> test.passWith "many nested elements many list case works"
+        | otherwise -> test.failWith "many nested elements many list case fails"
