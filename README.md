@@ -1,7 +1,9 @@
 # Fable.Parsimmon
 [Fable](http://fable.io/) binding and helpers for the [Parsimmon](https://github.com/jneen/parsimmon) parser combinator library.
 
-[![Nuget](https://img.shields.io/nuget/v/Fable.Parsimmon.svg?colorB=green)](https://www.nuget.org/packages/Fable.Parsimmon) 
+[![Nuget](https://img.shields.io/nuget/v/Fable.Parsimmon.svg?colorB=green)](https://www.nuget.org/packages/Fable.Parsimmon)  
+
+[![Build Status](https://travis-ci.org/Zaid-Ajaj/Fable.Parsimmon.svg?branch=master)](https://travis-ci.org/Zaid-Ajaj/Fable.Parsimmon)
 
 # Installation
 You can install the library from Nuget using Paket:
