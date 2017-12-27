@@ -1,14 +1,6 @@
 language: csharp
-sudo: true  
+mono: 5.2.0
+dotnet: 2.0.0
 dist: trusty
-
-addons:
-    apt:
-        packages:
-            - libunwind8
-
-before_script:
-  - npm install -g npm
-
 script:
-  - ./build.sh RunQUnitTests
+  - bash build.sh RunQUnitTests
