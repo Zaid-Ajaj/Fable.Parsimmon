@@ -16,6 +16,7 @@ type IParser<'t> =
     abstract map<'u> : ('t -> 'u) -> IParser<'u>
     abstract parse : string -> ParseResult<'t>
     abstract times : int -> IParser<'t []>
+    abstract times : int * int -> IParser<'t []>
     abstract many : unit -> IParser<'t []>
     [<Emit("$0.then($1)")>]
     abstract chain : IParser<'u> -> IParser<'u>
@@ -50,7 +51,8 @@ module Parsimmon =
     /// Returns a new parser which tries parser, and if it fails uses otherParser. Example:
     let orTry (otherParser: IParser<'t>) (parser: IParser<'t>) : IParser<'t> = 
         parser.orTry(otherParser)
-
+   
+    /// Returns a new parser that tries to parse the input exactly `n` times
     let times<'t> (n: int) (parser : IParser<'t>) : IParser<'t[]> = 
         parser.times n
 
@@ -91,6 +93,10 @@ module Parsimmon =
     /// A parser that consumes one letter
     let letter : IParser<string> = 
         import "letter" "./Parsimmon.js"
+
+    /// Returns a parser that tries `parser` and succeeds if `parser` is able to parse between `min` and `max` times
+    let timesBetween (min: int) (max: int) (parser: IParser<'u>) = 
+        parser.times(min, max)
 
     /// A parser that consumes one or more letters
     let letters : IParser<string[]> = 

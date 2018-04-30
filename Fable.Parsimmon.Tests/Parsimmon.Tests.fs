@@ -189,6 +189,21 @@ QUnit.test "Parsing list of numbers" <| fun test ->
         | Some [| 5; 10; 15; 20; 25 |] -> test.pass()
         | otherwise -> test.fail()
 
+QUnit.test "Parsimmon.timesBetween min max works" <| fun test ->
+   
+    Parsimmon.str "a"
+    |> Parsimmon.timesBetween 3 5
+    |> Parsimmon.parse "aaa"
+    |> function 
+        | Some [| "a"; "a"; "a" |] -> test.pass() 
+        | otherwise -> test.fail() 
+
+    Parsimmon.str "a"
+    |> Parsimmon.timesBetween 3 5
+    |> Parsimmon.parse "aa"
+    |> function 
+        | None -> test.pass()
+        | otherwise -> test.fail()
 
 QUnit.test "Parsing list of numbers works with whitespace" <| fun test ->
     let optWs = Parsimmon.optionalWhitespace
