@@ -124,7 +124,8 @@ module Parsimmon =
 
     // A parser that consumes one or more digits
     let digits : IParser<string[]> = 
-        import "digits" "./Parsimmon.js"
+        digit 
+        |> many
 
     /// Returns a new parser which tries "parser" and, if it fails, yields value without consuming any input.
     let fallback (value: 't) (parser: IParser<'t>) : IParser<'t> =

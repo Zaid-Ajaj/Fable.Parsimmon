@@ -14,17 +14,19 @@ let platformTool tool winTool =
   |> ProcessHelper.tryFindFileOnPath
   |> function Some t -> t | _ -> failwithf "%s not found" tool
 
-let nodeTool = platformTool "node" "node.exe"
-
 let mutable dotnetCli = "dotnet"
 
-let run cmd args workingDir =
-  let result =
-    ExecProcess (fun info ->
-      info.FileName <- cmd
-      info.WorkingDirectory <- workingDir
-      info.Arguments <- args) TimeSpan.MaxValue
-  if result <> 0 then failwithf "'%s %s' failed" cmd args
+let run fileName args workingDir =
+    printfn "CWD: %s" workingDir
+    let fileName, args =
+        if isUnix
+        then fileName, args else "cmd", ("/C " + fileName + " " + args)
+    let ok =
+        execProcess (fun info ->
+             info.FileName <- fileName
+             info.WorkingDirectory <- workingDir
+             info.Arguments <- args) TimeSpan.MaxValue
+    if not ok then failwith (sprintf "'%s> %s %s' task failed" workingDir fileName args)
 
 Target "Clean" <| fun _ ->
     CleanDir (testsPath </> "bin")
@@ -36,7 +38,7 @@ Target "Clean" <| fun _ ->
 
 Target "InstallClient" (fun _ ->
   printfn "Node version:"
-  run nodeTool "--version" __SOURCE_DIRECTORY__
+  run "node" "--version" __SOURCE_DIRECTORY__
   run "npm" "--version" __SOURCE_DIRECTORY__
   run "npm" "install" __SOURCE_DIRECTORY__
   run dotnetCli "restore" testsPath
@@ -65,7 +67,7 @@ let publish projectPath = fun () ->
 Target "PublishNuget" (publish libPath)
 
 
-Target "RunQUnitTests" <| fun _ ->
+Target "RunTests" <| fun _ ->
     let bundlePath = Path.Combine("public", "bundle.js") |> Path.GetFullPath
     let bundleSourceMap = Path.Combine("public", "bundle.js.map") |> Path.GetFullPath
     DeleteFile bundlePath
@@ -80,6 +82,6 @@ Target "RunQUnitTests" <| fun _ ->
 
 "Clean"
  ==> "InstallClient"
- ==> "RunQUnitTests"
+ ==> "RunTests"
 
-RunTargetOrDefault "RunQUnitTests"
+RunTargetOrDefault "RunTests"
