@@ -5,6 +5,8 @@ open Fable.Parsimmon
 open Fable.Import
 open Fable.Core.JsInterop
 
+#nowarn "40"
+
 QUnit.registerModule "Parsimmon Tests"
 
 QUnit.test "Parsimmon.str works" <| fun test ->
@@ -95,10 +97,10 @@ QUnit.test "Parsimmon.digit should not consume multiple digits" <| fun test ->
 
 QUnit.test "Parsimmon.digits works" <| fun test ->
     Parsimmon.digits
-    |> Parsimmon.map (Array.map int)
+    |> Parsimmon.map (List.ofArray >> List.map int)
     |> Parsimmon.parse "123"
     |> function 
-        | Some xs -> Array.sum xs |> test.equal 6
+        | Some xs -> List.sum xs |> test.equal 6
         | otherwise -> test.fail()
 
 QUnit.test "Parsimmon.letter works" <| fun test ->
