@@ -6,8 +6,7 @@
 
 | Fable version | Package |
 | ------------- | ------------- |
-| 1.3.x  |  [![Nuget](https://img.shields.io/nuget/v/Fable.Parsimmon.svg?maxAge=0&colorB=brightgreen)](https://www.nuget.org/packages/Fable.Parsimmon)  |
-| 2.0-beta  | [![Nuget](https://img.shields.io/nuget/vpre/Fable.Parsimmon.svg?maxAge=0&colorB=brightgreen)](https://www.nuget.org/packages/Fable.Parsimmon)   |
+| 2.0  | [![Nuget](https://img.shields.io/nuget/v/Fable.Parsimmon.svg?maxAge=0&colorB=brightgreen)](https://www.nuget.org/packages/Fable.Parsimmon)   |
 
 
 # Installation
