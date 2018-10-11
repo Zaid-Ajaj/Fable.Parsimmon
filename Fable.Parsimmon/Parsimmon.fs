@@ -73,7 +73,7 @@ module Parsimmon =
 
     /// Returns a parser that looks for a match to the regexp and yields the entire text matched. The regexp will always match starting at the current parse location.
     let regex (r: System.Text.RegularExpressions.Regex) : IParser<string> = 
-        import "regex" "./Parsimmon.js"
+        import "regexp" "./Parsimmon.js"
 
     let ofLazy (f: unit -> IParser<'t>) : IParser<'t> = 
         import "lazy" "./Parsimmon.js"
@@ -112,7 +112,7 @@ module Parsimmon =
 
     /// Returns a parser that doesn't consume any input, and yields the given value
     let succeed (value: 't) : IParser<'t> = 
-        import "of" "./Parsimmon.js"
+        import "succeed" "./Parsimmon.js"
 
     /// Parses using parser, but does not consume what it parses. Yields an empty string.
     let lookahead (parser: IParser<'t>) : IParser<string> = 

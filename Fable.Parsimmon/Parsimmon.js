@@ -1,6 +1,6 @@
 "use strict";
 
-function Parsimmon(action) {
+export function Parsimmon(action) {
   if (!(this instanceof Parsimmon)) {
     return new Parsimmon(action);
   }
@@ -9,27 +9,27 @@ function Parsimmon(action) {
 
 var _ = Parsimmon.prototype;
 
-function times(n, f) {
+export function times(n, f) {
   var i = 0;
   for (i; i < n; i++) {
     f(i);
   }
 }
 
-function forEach(f, arr) {
+export function forEach(f, arr) {
   times(arr.length, function(i) {
     f(arr[i], i, arr);
   });
 }
 
-function reduce(f, seed, arr) {
+export function reduce(f, seed, arr) {
   forEach(function(elem, i, arr) {
     seed = f(seed, elem, i, arr);
   }, arr);
   return seed;
 }
 
-function map(f, arr) {
+export function map(f, arr) {
   return reduce(
     function(acc, elem, i, a) {
       return acc.concat([f(elem, i, a)]);
@@ -39,7 +39,7 @@ function map(f, arr) {
   );
 }
 
-function lshiftBuffer(input) {
+export function lshiftBuffer(input) {
   var asTwoBytes = reduce(
     function(a, v, i, b) {
       return a.concat(
@@ -73,7 +73,7 @@ function bitPeekBuffer(input) {
   return input[0] >> 7;
 }
 
-function sum(numArr) {
+export function sum(numArr) {
   return reduce(
     function(x, y) {
       return x + y;
@@ -83,7 +83,7 @@ function sum(numArr) {
   );
 }
 
-function find(pred, arr) {
+export function find(pred, arr) {
   return reduce(
     function(found, elem) {
       return found || (pred(elem) ? elem : found);
@@ -312,7 +312,7 @@ function isBuffer(x) {
   return bufferExists() && Buffer.isBuffer(x);
 }
 
-function makeSuccess(index, value) {
+export function makeSuccess(index, value) {
   return {
     status: true,
     index: index,
@@ -322,7 +322,7 @@ function makeSuccess(index, value) {
   };
 }
 
-function makeFailure(index, expected) {
+export function makeFailure(index, expected) {
   if (!isArray(expected)) {
     expected = [expected];
   }
@@ -457,18 +457,18 @@ var bytesBefore = bytesPerLine * 5;
 var bytesAfter = bytesPerLine * 4;
 var defaultLinePrefix = "  ";
 
-function repeat(string, amount) {
+export function repeat(string, amount) {
   return new Array(amount + 1).join(string);
 }
 
-function formatExpected(expected) {
+export function formatExpected(expected) {
   if (expected.length === 1) {
     return "Expected:\n\n" + expected[0];
   }
   return "Expected one of the following: \n\n" + expected.join(", ");
 }
 
-function leftPad(str, pad, char) {
+export function leftPad(str, pad, char) {
   var add = pad - str.length;
   if (add <= 0) {
     return str;
@@ -501,7 +501,7 @@ function toChunks(arr, chunkSize) {
 }
 
 // Get a range of indexes including `i`-th element and `before` and `after` amount of elements from `arr`.
-function rangeFromIndexAndOffsets(i, before, after, length) {
+export function rangeFromIndexAndOffsets(i, before, after, length) {
   return {
     // Guard against the negative upper bound for lines included in the output.
     from: i - before > 0 ? i - before : 0,
@@ -509,7 +509,7 @@ function rangeFromIndexAndOffsets(i, before, after, length) {
   };
 }
 
-function byteRangeToRange(byteRange) {
+export function byteRangeToRange(byteRange) {
   // Exception for inputs smaller than `bytesPerLine`
   if (byteRange.from === 0 && byteRange.to === 1) {
     return {
@@ -525,7 +525,7 @@ function byteRangeToRange(byteRange) {
   };
 }
 
-function formatGot(input, error) {
+export function formatGot(input, error) {
   var index = error.index;
   var i = index.offset;
 
@@ -649,7 +649,7 @@ function formatGot(input, error) {
   return linesWithLineNumbers.join("\n");
 }
 
-function formatError(input, error) {
+export function formatError(input, error) {
   return [
     "\n",
     "-- PARSING FAILED " + repeat("-", 50),
@@ -661,18 +661,18 @@ function formatError(input, error) {
   ].join("");
 }
 
-function flags(re) {
+export function flags(re) {
   var s = "" + re;
   return s.slice(s.lastIndexOf("/") + 1);
 }
 
-function anchoredRegexp(re) {
+export function anchoredRegexp(re) {
   return RegExp("^(?:" + re.source + ")", flags(re));
 }
 
 // -*- Combinators -*-
 
-function seq() {
+export function seq() {
   var parsers = [].slice.call(arguments);
   var numParsers = parsers.length;
   for (var j = 0; j < numParsers; j += 1) {
@@ -693,7 +693,7 @@ function seq() {
   });
 }
 
-function seqObj() {
+export function seqObj() {
   var seenKeys = {};
   var totalKeys = 0;
   var parsers = toArray(arguments);
@@ -749,7 +749,7 @@ function seqObj() {
   });
 }
 
-function seqMap() {
+export function seqMap() {
   var args = [].slice.call(arguments);
   if (args.length === 0) {
     throw new Error("seqMap needs at least one argument");
@@ -762,7 +762,7 @@ function seqMap() {
 }
 
 // TODO[ES5]: Revisit this with Object.keys and .bind.
-function createLanguage(parsers) {
+export function createLanguage(parsers) {
   var language = {};
   for (var key in parsers) {
     if ({}.hasOwnProperty.call(parsers, key)) {
@@ -777,7 +777,7 @@ function createLanguage(parsers) {
   return language;
 }
 
-function alt() {
+export function alt() {
   var parsers = [].slice.call(arguments);
   var numParsers = parsers.length;
   if (numParsers === 0) {
@@ -798,12 +798,12 @@ function alt() {
   });
 }
 
-function sepBy(parser, separator) {
+export function sepBy(parser, separator) {
   // Argument asserted by sepBy1
   return sepBy1(parser, separator).or(succeed([]));
 }
 
-function sepBy1(parser, separator) {
+export function sepBy1(parser, separator) {
   assertParser(parser);
   assertParser(separator);
   var pairs = separator.then(parser).many();
@@ -1083,7 +1083,7 @@ _.chain = function(f) {
 
 // -*- Constructors -*-
 
-function string(str) {
+export function string(str) {
   assertString(str);
   var expected = "'" + str + "'";
   return Parsimmon(function(input, i) {
@@ -1097,7 +1097,7 @@ function string(str) {
   });
 }
 
-function byte(b) {
+export function byte(b) {
   ensureBuffer();
   assertNumber(b);
   if (b > 0xff) {
@@ -1120,7 +1120,7 @@ function byte(b) {
   });
 }
 
-function regexp(re, group) {
+export function regexp(re, group) {
   assertRegexp(re);
   if (arguments.length >= 2) {
     assertNumber(group);
@@ -1145,19 +1145,19 @@ function regexp(re, group) {
   });
 }
 
-function succeed(value) {
+export function succeed(value) {
   return Parsimmon(function(input, i) {
     return makeSuccess(i, value);
   });
 }
 
-function fail(expected) {
+export function fail(expected) {
   return Parsimmon(function(input, i) {
     return makeFailure(i, expected);
   });
 }
 
-function lookahead(x) {
+export function lookahead(x) {
   if (isParser(x)) {
     return Parsimmon(function(input, i) {
       var result = x._(input, i);
@@ -1173,7 +1173,7 @@ function lookahead(x) {
   throw new Error("not a string, regexp, or parser: " + x);
 }
 
-function notFollowedBy(parser) {
+export function notFollowedBy(parser) {
   assertParser(parser);
   return Parsimmon(function(input, i) {
     var result = parser._(input, i);
@@ -1184,7 +1184,7 @@ function notFollowedBy(parser) {
   });
 }
 
-function test(predicate) {
+export function test(predicate) {
   assertFunction(predicate);
   return Parsimmon(function(input, i) {
     var char = get(input, i);
@@ -1196,7 +1196,7 @@ function test(predicate) {
   });
 }
 
-function oneOf(str) {
+export function oneOf(str) {
   var expected = str.split("");
   for (var idx = 0; idx < expected.length; idx++) {
     expected[idx] = "'" + expected[idx] + "'";
@@ -1206,24 +1206,24 @@ function oneOf(str) {
   }).desc(expected);
 }
 
-function noneOf(str) {
+export function noneOf(str) {
   return test(function(ch) {
     return str.indexOf(ch) < 0;
   }).desc("none of '" + str + "'");
 }
 
-function custom(parsingFunction) {
+export function custom(parsingFunction) {
   return Parsimmon(parsingFunction(makeSuccess, makeFailure));
 }
 
 // TODO[ES5]: Improve error message using JSON.stringify eventually.
-function range(begin, end) {
+export function range(begin, end) {
   return test(function(ch) {
     return begin <= ch && ch <= end;
   }).desc(begin + "-" + end);
 }
 
-function takeWhile(predicate) {
+export function takeWhile(predicate) {
   assertFunction(predicate);
 
   return Parsimmon(function(input, i) {
@@ -1235,7 +1235,7 @@ function takeWhile(predicate) {
   });
 }
 
-function lazy(desc, f) {
+export function lazy(desc, f) {
   if (arguments.length < 2) {
     f = desc;
     desc = undefined;
@@ -1271,112 +1271,36 @@ _["fantasy-land/map"] = _.map;
 
 // -*- Base Parsers -*-
 
-var index = Parsimmon(function(input, i) {
+export const index = Parsimmon(function(input, i) {
   return makeSuccess(i, makeLineColumnIndex(input, i));
 });
 
-var any = Parsimmon(function(input, i) {
+export const any = Parsimmon(function(input, i) {
   if (i >= input.length) {
     return makeFailure(i, "any character/byte");
   }
   return makeSuccess(i + 1, get(input, i));
 });
 
-var all = Parsimmon(function(input, i) {
+export const all = Parsimmon(function(input, i) {
   return makeSuccess(input.length, input.slice(i));
 });
 
-var eof = Parsimmon(function(input, i) {
+export const eof = Parsimmon(function(input, i) {
   if (i < input.length) {
     return makeFailure(i, "EOF");
   }
   return makeSuccess(i, null);
 });
 
-var digit = regexp(/[0-9]/).desc("a digit");
-var digits = regexp(/[0-9]*/).desc("optional digits");
-var letter = regexp(/[a-z]/i).desc("a letter");
-var letters = regexp(/[a-z]*/i).desc("optional letters");
-var optWhitespace = regexp(/\s*/).desc("optional whitespace");
-var whitespace = regexp(/\s+/).desc("whitespace");
-var cr = string("\r");
-var lf = string("\n");
-var crlf = string("\r\n");
-var newline = alt(crlf, lf, cr).desc("newline");
-var end = alt(newline, eof);
-
-Parsimmon.all = all;
-Parsimmon.alt = alt;
-Parsimmon.any = any;
-Parsimmon.cr = cr;
-Parsimmon.createLanguage = createLanguage;
-Parsimmon.crlf = crlf;
-Parsimmon.custom = custom;
-Parsimmon.digit = digit;
-Parsimmon.digits = digits;
-Parsimmon.empty = empty;
-Parsimmon.end = end;
-Parsimmon.eof = eof;
-Parsimmon.fail = fail;
-Parsimmon.formatError = formatError;
-Parsimmon.index = index;
-Parsimmon.isParser = isParser;
-Parsimmon.lazy = lazy;
-Parsimmon.letter = letter;
-Parsimmon.letters = letters;
-Parsimmon.lf = lf;
-Parsimmon.lookahead = lookahead;
-Parsimmon.makeFailure = makeFailure;
-Parsimmon.makeSuccess = makeSuccess;
-Parsimmon.newline = newline;
-Parsimmon.noneOf = noneOf;
-Parsimmon.notFollowedBy = notFollowedBy;
-Parsimmon.of = succeed;
-Parsimmon.oneOf = oneOf;
-Parsimmon.optWhitespace = optWhitespace;
-Parsimmon.Parser = Parsimmon;
-Parsimmon.range = range;
-Parsimmon.regex = regexp;
-Parsimmon.regexp = regexp;
-Parsimmon.sepBy = sepBy;
-Parsimmon.sepBy1 = sepBy1;
-Parsimmon.seq = seq;
-Parsimmon.seqMap = seqMap;
-Parsimmon.seqObj = seqObj;
-Parsimmon.string = string;
-Parsimmon.succeed = succeed;
-Parsimmon.takeWhile = takeWhile;
-Parsimmon.test = test;
-Parsimmon.whitespace = whitespace;
-Parsimmon["fantasy-land/empty"] = empty;
-Parsimmon["fantasy-land/of"] = succeed;
-
-Parsimmon.Binary = {
-  bitSeq: bitSeq,
-  bitSeqObj: bitSeqObj,
-  byte: byte,
-  buffer: parseBuffer,
-  encodedString: encodedString,
-  uintBE: uintBE,
-  uint8BE: uintBE(1),
-  uint16BE: uintBE(2),
-  uint32BE: uintBE(4),
-  uintLE: uintLE,
-  uint8LE: uintLE(1),
-  uint16LE: uintLE(2),
-  uint32LE: uintLE(4),
-  intBE: intBE,
-  int8BE: intBE(1),
-  int16BE: intBE(2),
-  int32BE: intBE(4),
-  intLE: intLE,
-  int8LE: intLE(1),
-  int16LE: intLE(2),
-  int32LE: intLE(4),
-  floatBE: floatBE(),
-  floatLE: floatLE(),
-  doubleBE: doubleBE(),
-  doubleLE: doubleLE()
-};
-
-module.exports = Parsimmon;
+export const digit = regexp(/[0-9]/).desc("a digit");
+export const digits = regexp(/[0-9]*/).desc("optional digits");
+export const letter = regexp(/[a-z]/i).desc("a letter");
+export const letters = regexp(/[a-z]*/i).desc("optional letters");
+export const optWhitespace = regexp(/\s*/).desc("optional whitespace");
+export const whitespace = regexp(/\s+/).desc("whitespace");
+export const cr = string("\r");
+export const lf = string("\n");
+export const crlf = string("\r\n");
+export const newline = alt(crlf, lf, cr).desc("newline");
+export const end = alt(newline, eof);
