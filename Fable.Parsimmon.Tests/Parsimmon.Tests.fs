@@ -462,11 +462,15 @@ QUnit.test "Parsimmon.ofLazy works with list of digits parser" <| fun test ->
         | otherwise -> test.failWith "many nested elements many list case fails"
 
 QUnit.test "Parsimmon.node works with correct positions" <| fun test -> 
-    let pA = Parsimmon.letter "a" |> Parsimmon.many
-    let p = Parsimmon.between pA Parsimmon.digits pA
-    let result =
-        Parsimmon.parse "ab12dc" p
+    let pLetters = Parsimmon.letter |> Parsimmon.many
+    let pInt = Parsimmon.digits |> Parsimmon.map (fun digits -> String.concat "" digits |> (int))
+    let p =
+        Parsimmon.between pLetters pLetters pInt
         |> Parsimmon.node "digits"
-
+    let result = p.parse "ab42cd"
+        
     test.isTrue result.status
-    test.equal "12" result.value
+    test.equal result.value.value 42
+    test.equal result.value.start.column 1
+    test.equal result.value.``end``.column 7
+        
