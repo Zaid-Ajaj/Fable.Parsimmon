@@ -12,6 +12,17 @@ type IParserOffSet =
     abstract line : int
     abstract column : int
 
+type TokenPosition =
+    { offset: int
+      line: int
+      column: int }
+
+type NodeResult<'t> =
+    { name: string
+      value: 't
+      start: TokenPosition
+      ``end``: TokenPosition }
+
 type IParser<'t> = 
     abstract map<'u> : ('t -> 'u) -> IParser<'u>
     abstract parse : string -> ParseResult<'t>
@@ -32,6 +43,8 @@ type IParser<'t> =
     [<Emit("$0.or($1)")>]
     abstract orTry : IParser<'t> -> IParser<'t>
     abstract sepBy1 : IParser<'u> -> IParser<'t []>
+    [<Emit("$0.node($1)")>]
+    abstract node(name: string): IParser<NodeResult<'t>> = jsNative
 
 module Parsimmon = 
     let parseRaw (input: string) (parser: IParser<'t>) =
@@ -202,7 +215,7 @@ module Parsimmon =
     let trim (trimmed: IParser<'a>) (p: IParser<'t>) : IParser<'t> = 
         p.trim trimmed
     
-    /// Equavilant to `parser.map (String.concat "")`
+    /// Equivalent to `parser.map (String.concat "")`
     let concat (parser: IParser<string[]>) : IParser<string> =
         parser.map (String.concat "")
     
@@ -223,3 +236,6 @@ module Parsimmon =
              (p4: IParser<'w>) 
              (p5: IParser<'q>) : IParser<'t * 'u * 'v * 'w * 'q> =  
         import "seq" "./Parsimmon.js"
+
+    /// Equivalent to `parser.node("description")`
+    let node<'t> description (p:IParser<'t>) = parser.node(description)

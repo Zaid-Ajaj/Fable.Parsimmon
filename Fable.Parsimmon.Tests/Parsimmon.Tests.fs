@@ -460,3 +460,13 @@ QUnit.test "Parsimmon.ofLazy works with list of digits parser" <| fun test ->
     |> function 
         | Some (Many [Element 1; Many [Element 5; Element 6; Element 7]; Many [Element 1]]) -> test.passWith "many nested elements many list case works"
         | otherwise -> test.failWith "many nested elements many list case fails"
+
+QUnit.test "Parsimmon.node works with correct positions" <| fun test -> 
+    let pA = Parsimmon.letter "a" |> Parsimmon.many
+    let p = Parsimmon.between pA Parsimmon.digits pA
+    let result =
+        Parsimmon.parse "ab12dc" p
+        |> Parsimmon.node "digits"
+
+    test.isTrue result.status
+    test.equal "12" result.value
