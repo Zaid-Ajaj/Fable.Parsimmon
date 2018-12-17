@@ -44,7 +44,7 @@ type IParser<'t> =
     abstract orTry : IParser<'t> -> IParser<'t>
     abstract sepBy1 : IParser<'u> -> IParser<'t []>
     [<Emit("$0.node($1)")>]
-    abstract node(name: string): IParser<NodeResult<'t>> = jsNative
+    abstract node : string -> IParser<NodeResult<'t>>
 
 module Parsimmon = 
     let parseRaw (input: string) (parser: IParser<'t>) =
@@ -238,4 +238,4 @@ module Parsimmon =
         import "seq" "./Parsimmon.js"
 
     /// Equivalent to `parser.node("description")`
-    let node<'t> description (p:IParser<'t>) = parser.node(description)
+    let node<'t> description (p:IParser<'t>) = p.node(description)
