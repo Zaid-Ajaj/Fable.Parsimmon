@@ -39,8 +39,8 @@ Target "Clean" <| fun _ ->
 Target "InstallClient" (fun _ ->
   printfn "Node version:"
   run "node" "--version" __SOURCE_DIRECTORY__
-  run "npm" "--version" __SOURCE_DIRECTORY__
-  run "npm" "install" __SOURCE_DIRECTORY__
+  run "yarn" "--version" __SOURCE_DIRECTORY__
+  run "yarn" "install" __SOURCE_DIRECTORY__
   run dotnetCli "restore" testsPath
 )
 
