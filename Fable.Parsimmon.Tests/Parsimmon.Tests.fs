@@ -2,7 +2,6 @@ module Fable.Parsimmon.Tests
 
 open FSharp.Core
 open Fable.Parsimmon
-open Fable.Import
 open Fable.Core.JsInterop
 
 #nowarn "40"
@@ -13,7 +12,7 @@ QUnit.test "Parsimmon.str works" <| fun test ->
     let parser = Parsimmon.str "hello"
     parser
     |> Parsimmon.parse "hello"
-    |> function 
+    |> function
         | Some value -> test.equal value "hello"
         | None -> test.fail()
 
@@ -23,23 +22,37 @@ QUnit.test "Parsimmon.str works" <| fun test ->
         | Some value -> test.failWith "Should not have parsed the string"
         | None -> test.pass()
 
-QUnit.test "Parsimmon.oneOf works" <| fun test -> 
+QUnit.test "Parsimmon.regex works" <| fun test ->
+    let parser = Parsimmon.regex "AB+C"
+    parser
+    |> Parsimmon.parse "ABBC"
+    |> function
+        | Some value -> test.equal value "ABBC"
+        | None -> test.fail()
+
+    parser
+    |> Parsimmon.parse "AC"
+    |> function
+        | Some value -> test.failWith "Should not have parsed the string"
+        | None -> test.pass()
+
+QUnit.test "Parsimmon.oneOf works" <| fun test ->
     let parser = Parsimmon.oneOf "abc"
     ["a"; "b"; "c"]
     |> List.choose (fun token -> Parsimmon.parse token parser)
     |> List.length
-    |> test.equal 3 
+    |> test.equal 3
 
     ["e"; "f"; "g"]
     |> List.choose (fun token -> Parsimmon.parse token parser)
-    |> List.length 
+    |> List.length
     |> test.equal 0
 
-QUnit.test "Parsimmon.times works" <| fun test -> 
+QUnit.test "Parsimmon.times works" <| fun test ->
     Parsimmon.str "hello"
     |> Parsimmon.times 2
     |> Parsimmon.parse "hellohello"
-    |> function 
+    |> function
         | Some [| "hello"; "hello" |] -> test.pass()
         | Some other -> test.fail()
         | None -> test.fail()
@@ -48,7 +61,7 @@ QUnit.test "Parsimmon.map works" <| fun test ->
     Parsimmon.str "hello"
     |> Parsimmon.map (fun result -> result.Length)
     |> Parsimmon.parse "hello"
-    |> function 
+    |> function
         | Some 5 -> test.pass()
         | otherwise -> test.fail()
 
@@ -56,7 +69,7 @@ QUnit.test "Parsimmon.many works" <| fun test ->
     Parsimmon.oneOf "abc"
     |> Parsimmon.many
     |> Parsimmon.parse "abc"
-    |> function 
+    |> function
         | Some [| "a"; "b"; "c" |] -> test.pass()
         | otherwise -> test.fail()
 
@@ -76,7 +89,7 @@ QUnit.test "Parsimmon.noneOf works" <| fun test ->
 
     ["e"; "f"; "g"]
     |> List.choose (fun token -> Parsimmon.parse token parser)
-    |> List.length 
+    |> List.length
     |> test.equal 3
 
 
@@ -99,7 +112,7 @@ QUnit.test "Parsimmon.digits works" <| fun test ->
     Parsimmon.digits
     |> Parsimmon.map (List.ofArray >> List.map int)
     |> Parsimmon.parse "123"
-    |> function 
+    |> function
         | Some xs -> List.sum xs |> test.equal 6
         | otherwise -> test.fail()
 
@@ -112,7 +125,7 @@ QUnit.test "Parsimmon.letter works" <| fun test ->
         | Some [| "A"; "B"; "C" |] -> test.pass()
         | otherwise -> test.fail()
 
-QUnit.test "Optional Whitesapce works" <| fun test -> 
+QUnit.test "Optional Whitesapce works" <| fun test ->
     Parsimmon.optionalWhitespace
     |> Parsimmon.chain Parsimmon.digit
     |> Parsimmon.skip Parsimmon.optionalWhitespace
@@ -148,13 +161,13 @@ QUnit.test "Parsimmon.between with many works" <| fun test ->
     Parsimmon.digit
     |> Parsimmon.between leftBraket rightBracket
     |> Parsimmon.map int
-    |> Parsimmon.many 
+    |> Parsimmon.many
     |> Parsimmon.parse "[5][6][7]"
     |> function
         | Some [| 5; 6; 7 |] -> test.pass()
         | otherwise -> test.fail()
 
-QUnit.test "Parsimmon.whitespace works" <| fun test -> 
+QUnit.test "Parsimmon.whitespace works" <| fun test ->
     Parsimmon.letter
     |> Parsimmon.seperateBy Parsimmon.whitespace
     |> Parsimmon.parse "a b c"
@@ -167,14 +180,14 @@ QUnit.test "Parsimmon.chain works" <| fun test ->
     |> Parsimmon.chain Parsimmon.digit
     |> Parsimmon.map int
     |> Parsimmon.parse "a5"
-    |> function 
+    |> function
         | Some 5 -> test.pass()
         | otherwise -> test.fail()
 
 QUnit.test "Parsing list of numbers" <| fun test ->
     let comma = Parsimmon.str ","
 
-    let commaSeperatedNumbers = 
+    let commaSeperatedNumbers =
         Parsimmon.digit
         |> Parsimmon.many
         |> Parsimmon.concat
@@ -183,7 +196,7 @@ QUnit.test "Parsing list of numbers" <| fun test ->
 
     let leftBracket = Parsimmon.str "["
     let rightBracket = Parsimmon.str "]"
-    
+
     commaSeperatedNumbers
     |> Parsimmon.between leftBracket rightBracket
     |> Parsimmon.parse "[5,10,15,20,25]"
@@ -192,25 +205,25 @@ QUnit.test "Parsing list of numbers" <| fun test ->
         | otherwise -> test.fail()
 
 QUnit.test "Parsimmon.timesBetween min max works" <| fun test ->
-   
+
     Parsimmon.str "a"
     |> Parsimmon.timesBetween 3 5
     |> Parsimmon.parse "aaa"
-    |> function 
-        | Some [| "a"; "a"; "a" |] -> test.pass() 
-        | otherwise -> test.fail() 
+    |> function
+        | Some [| "a"; "a"; "a" |] -> test.pass()
+        | otherwise -> test.fail()
 
     Parsimmon.str "a"
     |> Parsimmon.timesBetween 3 5
     |> Parsimmon.parse "aa"
-    |> function 
+    |> function
         | None -> test.pass()
         | otherwise -> test.fail()
 
 QUnit.test "Parsing list of numbers works with whitespace" <| fun test ->
     let optWs = Parsimmon.optionalWhitespace
-    let commaSeperatedNumbers = 
-        Parsimmon.digit 
+    let commaSeperatedNumbers =
+        Parsimmon.digit
         |> Parsimmon.trim optWs
         |> Parsimmon.many
         |> Parsimmon.tie
@@ -228,10 +241,10 @@ QUnit.test "Parsing list of numbers works with whitespace" <| fun test ->
 
 QUnit.test "Parsimmon.satisfy works" <| fun test ->
     Parsimmon.satisfy (fun input -> input.ToUpper() = input)
-    |> fun parser -> 
+    |> fun parser ->
         ["a"; "+"; "b" ]
         |> List.map (fun token -> Parsimmon.parse token parser)
-        |> function 
+        |> function
             | [None; Some "+"; None] -> test.pass()
             | otherwise -> test.fail()
 
@@ -240,37 +253,37 @@ QUnit.test "Parsimmon.fallback works" <| fun test ->
     Parsimmon.digit
     |> Parsimmon.map int
     |> Parsimmon.fallback 0
-    |> fun parser -> 
+    |> fun parser ->
         ["5"; ""; "1"]
         |> List.map (fun input -> Parsimmon.parse input parser)
         |> function
             | [Some 5; Some 0; Some 1] -> test.pass()
             | otherwise -> test.fail()
 
-QUnit.test "Parsimmon.seq2 works" <| fun test -> 
-    Parsimmon.seq2 
+QUnit.test "Parsimmon.seq2 works" <| fun test ->
+    Parsimmon.seq2
          (Parsimmon.digit |> Parsimmon.map int)
          (Parsimmon.digit |> Parsimmon.map (int >> (+) 1))
     |> Parsimmon.map (fun (a, b) -> a + b)
     |> Parsimmon.parse "56"
-    |> function 
+    |> function
         | Some 12 -> test.pass()
         | otherwise -> test.fail()
-    
-QUnit.test "Parsimmon.seq3 works" <| fun test -> 
-    Parsimmon.seq3 
+
+QUnit.test "Parsimmon.seq3 works" <| fun test ->
+    Parsimmon.seq3
          (Parsimmon.digit |> Parsimmon.map (int >> (+) 1))
          (Parsimmon.digit |> Parsimmon.map (int >> (+) 2))
          (Parsimmon.digit |> Parsimmon.map (int >> (+) 3))
     |> Parsimmon.map (fun (a, b, c) -> a + b + c)
     |> Parsimmon.parse "123"
-    |> function 
+    |> function
         | Some 12 -> test.pass()
         | otherwise -> test.fail()
 
 
 QUnit.test "Parsimmon.orTry works" <| fun test ->
-    let parser = 
+    let parser =
       Parsimmon.str "+"
       |> Parsimmon.orTry (Parsimmon.str "-")
 
@@ -290,16 +303,16 @@ QUnit.test "Parsimmon.orTry works" <| fun test ->
         | None -> test.pass()
         | otherwise -> test.fail()
 
-QUnit.test "Parsimmon.choose works" <| fun test -> 
+QUnit.test "Parsimmon.choose works" <| fun test ->
     [ Parsimmon.str "a"
-      Parsimmon.str "ab" ] 
+      Parsimmon.str "ab" ]
     |> Parsimmon.choose
     |> Parsimmon.parse "ab"
     |> function
         | None -> test.pass()
         | otherwise -> test.fail()
 
-    [ Parsimmon.str "ab" 
+    [ Parsimmon.str "ab"
       Parsimmon.str "a"  ]
     |> Parsimmon.choose
     |> Parsimmon.parse "ab"
@@ -307,55 +320,55 @@ QUnit.test "Parsimmon.choose works" <| fun test ->
         | Some "ab" -> test.pass()
         | otherwise -> test.fail()
 
-QUnit.test "Parsimmon.ofLazy works with single character strings" <| fun test -> 
-    
-    let rec lazyValue = Parsimmon.ofLazy <| fun () -> 
-        [ Parsimmon.str "X" 
+QUnit.test "Parsimmon.ofLazy works with single character strings" <| fun test ->
+
+    let rec lazyValue = Parsimmon.ofLazy <| fun () ->
+        [ Parsimmon.str "X"
           Parsimmon.str "("
              |> Parsimmon.chain lazyValue
              |> Parsimmon.skip (Parsimmon.str ")") ]
         |> Parsimmon.choose
-    
 
-    ["X"; "(X)"; "((X))"] 
+
+    ["X"; "(X)"; "((X))"]
     |> List.map (fun token -> Parsimmon.parse token lazyValue)
-    |> function 
+    |> function
         | [ Some "X"; Some "X"; Some "X" ] -> test.pass()
         | otherwise -> test.fail()
 
-QUnit.test "Parsimmon.ofLazy works with multiple character strings" <| fun test -> 
-    let rec lazyValue = Parsimmon.ofLazy <| fun () -> 
-        [ Parsimmon.str "XY" 
+QUnit.test "Parsimmon.ofLazy works with multiple character strings" <| fun test ->
+    let rec lazyValue = Parsimmon.ofLazy <| fun () ->
+        [ Parsimmon.str "XY"
           Parsimmon.str "("
              |> Parsimmon.chain lazyValue
              |> Parsimmon.skip (Parsimmon.str ")") ]
         |> Parsimmon.choose
 
-    ["XY"; "(XY)"; "((XY))"] 
+    ["XY"; "(XY)"; "((XY))"]
     |> List.map (fun token -> Parsimmon.parse token lazyValue)
-    |> function 
+    |> function
         | [ Some "XY"; Some "XY"; Some "XY" ] -> test.pass()
         | otherwise -> test.fail()
 
-QUnit.test "Parsimmon.ofLazy works with single digit parser" <| fun test -> 
-    
-    let rec lazyValue = Parsimmon.ofLazy <| fun () -> 
+QUnit.test "Parsimmon.ofLazy works with single digit parser" <| fun test ->
+
+    let rec lazyValue = Parsimmon.ofLazy <| fun () ->
         [ Parsimmon.digit |> Parsimmon.map int
           Parsimmon.str "("
              |> Parsimmon.chain lazyValue
              |> Parsimmon.skip (Parsimmon.str ")") ]
         |> Parsimmon.choose
-    
 
-    ["5"; "(6)"; "((7))"] 
+
+    ["5"; "(6)"; "((7))"]
     |> List.map (fun token -> Parsimmon.parse token lazyValue)
-    |> function 
+    |> function
         | [ Some 5; Some 6; Some 7 ] -> test.pass()
         | otherwise -> test.fail()
 
-QUnit.test "Parsimmon.ofLazy works with multiple digit parser" <| fun test -> 
-    let rec lazyValue = Parsimmon.ofLazy <| fun () -> 
-        [ Parsimmon.digit 
+QUnit.test "Parsimmon.ofLazy works with multiple digit parser" <| fun test ->
+    let rec lazyValue = Parsimmon.ofLazy <| fun () ->
+        [ Parsimmon.digit
              |> Parsimmon.atLeastOneOrMany // this is a must, Parsimmon.many won't work
              |> Parsimmon.concat
              |> Parsimmon.map int
@@ -363,7 +376,7 @@ QUnit.test "Parsimmon.ofLazy works with multiple digit parser" <| fun test ->
              |> Parsimmon.chain lazyValue
              |> Parsimmon.skip (Parsimmon.str ")") ]
         |> Parsimmon.choose
-    
+
     lazyValue
     |> Parsimmon.parse "52"
     |> function
@@ -385,13 +398,13 @@ QUnit.test "Parsimmon.ofLazy works with multiple digit parser" <| fun test ->
 
 // from https://github.com/jneen/parsimmon/blob/master/API.md#parsimmonindex
 QUnit.test "Parsimmon.index works" <| fun test ->
-    Parsimmon.seq3 
+    Parsimmon.seq3
         (Parsimmon.oneOf "Q\n" |> Parsimmon.many)
         (Parsimmon.str "B")
         Parsimmon.index
     |> Parsimmon.parse "QQ\n\nQQQB"
     |> function
-        | Some (_, _, index) -> 
+        | Some (_, _, index) ->
             test.equal index.offset 8
             test.equal index.line 3
             test.equal index.column 5
@@ -399,78 +412,77 @@ QUnit.test "Parsimmon.index works" <| fun test ->
         | otherwise -> test.fail()
 
 
-type NestedList<'a> = 
+type NestedList<'a> =
     | Element of 'a
     | Many of NestedList<'a> list
 
 
-QUnit.test "Parsimmon.ofLazy works with list of digits parser" <| fun test -> 
-    
-    let rec lazyValue = Parsimmon.ofLazy <| fun () -> 
+QUnit.test "Parsimmon.ofLazy works with list of digits parser" <| fun test ->
 
-        let elementParser = 
-          Parsimmon.digit 
+    let rec lazyValue = Parsimmon.ofLazy <| fun () ->
+
+        let elementParser =
+          Parsimmon.digit
           |> Parsimmon.atLeastOneOrMany // this is a must, Parsimmon.many won't work
           |> Parsimmon.concat
           |> Parsimmon.map (int >> Element)
-          
-        let expression = 
+
+        let expression =
             lazyValue
             |> Parsimmon.seperateBy (Parsimmon.str " ")
-        
-        let listParser = 
+
+        let listParser =
           Parsimmon.str "["
           |> Parsimmon.chain expression
           |> Parsimmon.skip (Parsimmon.str "]")
-          |> Parsimmon.map (List.ofArray >> Many)   
-        
+          |> Parsimmon.map (List.ofArray >> Many)
+
         Parsimmon.choose [ listParser; elementParser ]
-    
+
     Parsimmon.parse "555" lazyValue
-    |> function 
+    |> function
         | Some (Element 555) -> test.passWith "Single element case works"
         | otherwise -> test.failWith "Single element case fails"
 
     Parsimmon.parse "[5]" lazyValue
-    |> function 
+    |> function
         | Some (Many [Element 5]) -> test.passWith "Single element list case works"
         | otherwise -> test.failWith "Single element list case fails"
 
     Parsimmon.parse "[]" lazyValue
-    |> function 
+    |> function
         | Some (Many []) -> test.passWith "empty list case works"
         | otherwise -> test.failWith "empty list case fails"
 
     Parsimmon.parse "[5 6 7]" lazyValue
-    |> function 
+    |> function
         | Some (Many [Element 5; Element 6; Element 7]) -> test.passWith "many elements single list case works"
         | otherwise -> test.failWith "many elements single list case fails"
 
     Parsimmon.parse "[[5 6 7]]" lazyValue
-    |> function 
+    |> function
         | Some (Many [Many [Element 5; Element 6; Element 7]]) -> test.passWith "many nested elements single list case works"
         | otherwise -> test.failWith "many nested elements single list case fails"
 
     Parsimmon.parse "[1 [5 6 7]]" lazyValue
-    |> function 
+    |> function
         | Some (Many [Element 1; Many [Element 5; Element 6; Element 7]]) -> test.passWith "many nested elements many list case works"
         | otherwise -> test.failWith "many nested elements many list case fails"
 
     Parsimmon.parse "[1 [5 6 7] [1]]" lazyValue
-    |> function 
+    |> function
         | Some (Many [Element 1; Many [Element 5; Element 6; Element 7]; Many [Element 1]]) -> test.passWith "many nested elements many list case works"
         | otherwise -> test.failWith "many nested elements many list case fails"
 
-QUnit.test "Parsimmon.node works with correct positions" <| fun test -> 
+QUnit.test "Parsimmon.node works with correct positions" <| fun test ->
     let pLetters = Parsimmon.letter |> Parsimmon.many
     let pInt = Parsimmon.digits |> Parsimmon.map (fun digits -> String.concat "" digits |> (int))
     let p =
         Parsimmon.between pLetters pLetters pInt
         |> Parsimmon.node "digits"
     let result = p.parse "ab42cd"
-        
+
     test.isTrue result.status
     test.equal result.value.value 42
     test.equal result.value.start.column 1
     test.equal result.value.``end``.column 7
-        
