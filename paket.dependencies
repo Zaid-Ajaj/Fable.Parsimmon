@@ -3,9 +3,7 @@ group Main
     storage:none
 
     nuget FSharp.Core
-    nuget Fable.Core 
-    nuget Fable.Import.Browser
-    clitool dotnet-fable
+    nuget Fable.Core prerelease
 
 group Build
   framework >= net45

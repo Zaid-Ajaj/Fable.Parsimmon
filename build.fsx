@@ -45,7 +45,7 @@ Target "InstallClient" (fun _ ->
 )
 
 Target "RunLiveTests" <| fun _ ->
-    run dotnetCli "fable npm-run start" testsPath
+    run "yarn" "start" testsPath
 
 let publish projectPath = fun () ->
     [ projectPath </> "bin"
@@ -56,9 +56,9 @@ let publish projectPath = fun () ->
         match environVarOrNone "NUGET_KEY" with
         | Some nugetKey -> nugetKey
         | None -> failwith "The Nuget API key must be set in a NUGET_KEY environmental variable"
-    let nupkg = 
-        Directory.GetFiles(projectPath </> "bin" </> "Release") 
-        |> Seq.head 
+    let nupkg =
+        Directory.GetFiles(projectPath </> "bin" </> "Release")
+        |> Seq.head
         |> Path.GetFullPath
 
     let pushCmd = sprintf "nuget push %s -s nuget.org -k %s" nupkg nugetKey
@@ -72,7 +72,7 @@ Target "RunTests" <| fun _ ->
     let bundleSourceMap = Path.Combine("public", "bundle.js.map") |> Path.GetFullPath
     DeleteFile bundlePath
     DeleteFile bundleSourceMap
-    run dotnetCli "fable npm-run build" testsPath
+    run "yarn" "build" testsPath
     run "npm" "run test" "."
 
 "Clean"
