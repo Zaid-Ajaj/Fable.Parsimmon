@@ -36,6 +36,41 @@ QUnit.test "Parsimmon.regex works" <| fun test ->
         | Some value -> test.failWith "Should not have parsed the string"
         | None -> test.pass()
 
+QUnit.test "Parsimmon.regexGroupNumber works" <| fun test ->
+
+    let comment =
+        Parsimmon.regexGroupNumber """<!--(.*?)-->""" 1
+
+    comment
+    |> Parsimmon.parse "<!--Hello there-->"
+    |> function
+        | Some value -> test.equal value "Hello there"
+        | None -> test.fail()
+
+    comment
+    |> Parsimmon.parse "<!-- Hello there -->"
+    |> function
+        | Some value -> test.equal value " Hello there "
+        | None -> test.fail()
+
+    comment
+    |> Parsimmon.parse "<!-- Hello - there -->"
+    |> function
+        | Some value -> test.equal value " Hello - there "
+        | None -> test.fail()
+
+    comment
+    |> Parsimmon.parse "<!-- Hello <!-- whatever -->"
+    |> function
+        | Some value -> test.equal value " Hello <!-- whatever "
+        | None -> test.fail()
+
+    comment
+    |> Parsimmon.parse "<!-- Hello ->-> whatever -->"
+    |> function
+        | Some value -> test.equal value " Hello ->-> whatever "
+        | None -> test.fail()
+
 QUnit.test "Parsimmon.oneOf works" <| fun test ->
     let parser = Parsimmon.oneOf "abc"
     ["a"; "b"; "c"]

@@ -85,9 +85,11 @@ module Parsimmon =
         parser.many()
 
     /// Returns a parser that looks for a match to the regexp and yields the entire text matched. The regexp will always match starting at the current parse location.
-    [<Import("regexp", "./Parsimmon.js"); Emit("$0(new RegExp($1))")>] // Emit("$0(/$1!/)")>]
+    [<Import("regexp", "./Parsimmon.js"); Emit("$0(new RegExp($1))")>]
     let regex (pattern: string) : IParser<string> = jsNative
-
+    /// Returns a parser that looks for a match to the regexp and yields the entire text matched. The regexp will always match starting at the current parse location.
+    [<Import("regexp", "./Parsimmon.js"); Emit("$0(new RegExp($1), $2)")>]
+    let regexGroupNumber (pattern: string) (groupNumber: int): IParser<string> = jsNative
     let ofLazy (f: unit -> IParser<'t>) : IParser<'t> =
         import "lazy" "./Parsimmon.js"
 
